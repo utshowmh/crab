@@ -1,6 +1,6 @@
 use std::io::{stdin, stdout, Write};
 
-use crab::syntax::syntax_tree::SyntaxTree;
+use crab::{binding::binder::Binder, syntax::syntax_tree::SyntaxTree};
 
 fn main() {
     let mut line = String::new();
@@ -14,12 +14,16 @@ fn main() {
         match line.trim() {
             "@exit" | "@e" => break,
             "@tree" | "@t" => show_tree = !show_tree,
+
             line => {
                 if !line.is_empty() {
                     let syntax_tree = SyntaxTree::new(line);
 
+                    let binder = Binder::new();
+                    let bound_tree = binder.bind(syntax_tree.root);
+
                     if show_tree {
-                        println!("{:#?}", syntax_tree.root);
+                        println!("{bound_tree:#?}");
                     }
 
                     if !syntax_tree.diagnostics.is_empty() {
