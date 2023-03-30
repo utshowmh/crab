@@ -1,1 +1,4 @@
-// pub type Number = i32;
+#[derive(Debug, PartialEq)]
+pub enum Object {
+    Number(i32),
+}

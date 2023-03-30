@@ -1,13 +1,13 @@
 use super::token::{Token, TokenKind};
 
-pub struct Lexer {
+pub(super) struct Lexer {
     source: Vec<char>,
     current: usize,
-    diagnostics: Vec<String>,
+    pub(super) diagnostics: Vec<String>,
 }
 
 impl Lexer {
-    pub fn new(source: &str) -> Self {
+    pub(super) fn new(source: &str) -> Self {
         Self {
             source: source.chars().collect(),
             current: 0,
@@ -15,12 +15,15 @@ impl Lexer {
         }
     }
 
-    pub fn lex(&mut self) -> Vec<Token> {
+    pub(super) fn lex(&mut self) -> Vec<Token> {
         let mut tokens = Vec::new();
         loop {
             let token = self.next_token();
             if token.kind == TokenKind::Eof {
+                tokens.push(token);
                 break;
+            } else if token.kind == TokenKind::Whitespace || token.kind == TokenKind::Invalid {
+                continue;
             } else {
                 tokens.push(token);
             }
