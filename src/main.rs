@@ -1,6 +1,6 @@
 use std::io::{stdin, stdout, Write};
 
-use crab::{binding::binder::Binder, syntax::syntax_tree::SyntaxTree};
+use crab::{binding::binder::Binder, evaluator::evaluate, syntax::syntax_tree::SyntaxTree};
 
 fn main() {
     let mut line = String::new();
@@ -30,6 +30,8 @@ fn main() {
                         for diagnostic in syntax_tree.diagnostics {
                             eprintln!("ERROR: {diagnostic}.");
                         }
+                    } else {
+                        println!("{}", evaluate(bound_tree));
                     }
                 }
             }
