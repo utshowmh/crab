@@ -46,12 +46,12 @@ impl Display for TokenKind {
             TokenKind::OpenParen => write!(f, "("),
             TokenKind::CloseParen => write!(f, ")"),
 
-            TokenKind::Number => write!(f, "{:?}", self),
+            TokenKind::Number => write!(f, "{self:?}"),
 
-            TokenKind::Whitespace => write!(f, "{:?}", self),
+            TokenKind::Whitespace => write!(f, "{self:?}"),
 
-            TokenKind::Invalid => write!(f, "{:?}", self),
-            TokenKind::Eof => write!(f, "{:?}", self),
+            TokenKind::Invalid => write!(f, "{self:?}"),
+            TokenKind::Eof => write!(f, "{self:?}"),
         }
     }
 }
