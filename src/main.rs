@@ -19,15 +19,15 @@ fn main() {
                 if !line.is_empty() {
                     let syntax_tree = SyntaxTree::new(line);
 
-                    let binder = Binder::new();
+                    let mut binder = Binder::new(syntax_tree.diagnostics);
                     let bound_tree = binder.bind(syntax_tree.root);
 
                     if show_tree {
                         println!("{bound_tree:#?}");
                     }
 
-                    if !syntax_tree.diagnostics.is_empty() {
-                        for diagnostic in syntax_tree.diagnostics {
+                    if !binder.diagnostics.is_empty() {
+                        for diagnostic in binder.diagnostics {
                             eprintln!("ERROR: {diagnostic}.");
                         }
                     } else {

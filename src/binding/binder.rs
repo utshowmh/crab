@@ -14,18 +14,20 @@ use super::bound_tree::{
     BoundUnaryExpression, BoundUnaryOperatorKind,
 };
 
-pub struct Binder {}
+pub struct Binder {
+    pub diagnostics: Vec<String>,
+}
 
 impl Binder {
-    pub fn new() -> Self {
-        Self {}
+    pub fn new(diagnostics: Vec<String>) -> Self {
+        Self { diagnostics }
     }
 
-    pub fn bind(&self, root: Expression) -> BoundExpression {
+    pub fn bind(&mut self, root: Expression) -> BoundExpression {
         self.bind_expression(root)
     }
 
-    fn bind_expression(&self, root: Expression) -> BoundExpression {
+    fn bind_expression(&mut self, root: Expression) -> BoundExpression {
         match root {
             Expression::Literal(expression) => self.bind_literal_expression(expression),
             Expression::Parenthesized(expression) => self.bind_parenthesized_expression(expression),
@@ -39,26 +41,27 @@ impl Binder {
     }
 
     fn bind_parenthesized_expression(
-        &self,
+        &mut self,
         expression: ParenthesizedExpression,
     ) -> BoundExpression {
         self.bind_expression(*expression.expression)
     }
 
-    fn bind_unary_expression(&self, expression: UnaryExpression) -> BoundExpression {
+    fn bind_unary_expression(&mut self, expression: UnaryExpression) -> BoundExpression {
         let right = self.bind_expression(*expression.right);
         if let Some(operator) = self.get_unary_operator_kind(expression.operator.kind, &right) {
             BoundExpression::Unary(BoundUnaryExpression::new(operator, right))
         } else {
-            panic!(
+            self.diagnostics.push(format!(
                 "Unary operator '{}' is not defined for '{}'",
                 expression.operator.lexeme,
                 right.get_type()
-            )
+            ));
+            right
         }
     }
 
-    fn bind_binary_expression(&self, expression: BinaryExpression) -> BoundExpression {
+    fn bind_binary_expression(&mut self, expression: BinaryExpression) -> BoundExpression {
         let left = self.bind_expression(*expression.left);
         let right = self.bind_expression(*expression.right);
         if let Some(operator) =
@@ -66,12 +69,13 @@ impl Binder {
         {
             BoundExpression::Binary(BoundBinaryExpression::new(left, operator, right))
         } else {
-            panic!(
+            self.diagnostics.push(format!(
                 "Binary operator '{}' is not defined for '{}' and '{}'",
                 expression.operator.lexeme,
                 left.get_type(),
                 right.get_type()
-            )
+            ));
+            left
         }
     }
 
