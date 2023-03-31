@@ -60,6 +60,11 @@ impl Parser {
                 self.match_token(TokenKind::CloseParen);
                 Expression::Parenthesized(ParenthesizedExpression::new(expression))
             }
+            TokenKind::True | TokenKind::False => {
+                let token = self.next_token();
+                let value = token.lexeme.parse().unwrap_or(false);
+                Expression::Literal(LiteralExpression::new(token, Object::Boolean(value)))
+            }
             _ => {
                 let token = self.match_token(TokenKind::Number);
                 let value = token.lexeme.parse().unwrap_or(0);

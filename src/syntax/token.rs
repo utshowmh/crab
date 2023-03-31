@@ -12,6 +12,10 @@ pub enum TokenKind {
 
     Number,
 
+    True,
+    False,
+    Identifier,
+
     Whitespace,
 
     Invalid,
@@ -33,6 +37,14 @@ impl TokenKind {
             _ => 0,
         }
     }
+
+    pub(super) fn get_lexeme_type(lexeme: &str) -> Self {
+        match lexeme {
+            "true" => TokenKind::True,
+            "false" => TokenKind::False,
+            _ => TokenKind::Identifier,
+        }
+    }
 }
 
 impl Display for TokenKind {
@@ -47,6 +59,10 @@ impl Display for TokenKind {
             TokenKind::CloseParen => write!(f, ")"),
 
             TokenKind::Number => write!(f, "{self:?}"),
+
+            TokenKind::True => write!(f, "true"),
+            TokenKind::False => write!(f, "false"),
+            TokenKind::Identifier => write!(f, "{self:?}"),
 
             TokenKind::Whitespace => write!(f, "{self:?}"),
 

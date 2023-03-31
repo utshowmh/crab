@@ -12,31 +12,21 @@ fn evaluate_expression(root: BoundExpression) -> Object {
         BoundExpression::Literal(expression) => expression.value,
 
         BoundExpression::Unary(expression) => {
-            let right = evaluate_expression(*expression.right);
+            let right = evaluate_expression(*expression.right).as_number();
             match expression.operator {
-                BoundUnaryOperatorKind::Identity => right,
-                BoundUnaryOperatorKind::Negation => match right {
-                    Object::Number(n) => Object::Number(-n),
-                },
+                BoundUnaryOperatorKind::Identity => Object::Number(right),
+                BoundUnaryOperatorKind::Negation => Object::Number(-right),
             }
         }
 
         BoundExpression::Binary(expression) => {
-            let left = evaluate_expression(*expression.left);
-            let right = evaluate_expression(*expression.right);
+            let left = evaluate_expression(*expression.left).as_number();
+            let right = evaluate_expression(*expression.right).as_number();
             match expression.operator {
-                BoundBinaryOperatorKind::Addition => match (left, right) {
-                    (Object::Number(x), Object::Number(y)) => Object::Number(x + y),
-                },
-                BoundBinaryOperatorKind::Subtraction => match (left, right) {
-                    (Object::Number(x), Object::Number(y)) => Object::Number(x - y),
-                },
-                BoundBinaryOperatorKind::Multiplication => match (left, right) {
-                    (Object::Number(x), Object::Number(y)) => Object::Number(x * y),
-                },
-                BoundBinaryOperatorKind::Division => match (left, right) {
-                    (Object::Number(x), Object::Number(y)) => Object::Number(x / y),
-                },
+                BoundBinaryOperatorKind::Addition => Object::Number(left + right),
+                BoundBinaryOperatorKind::Subtraction => Object::Number(left - right),
+                BoundBinaryOperatorKind::Multiplication => Object::Number(left * right),
+                BoundBinaryOperatorKind::Division => Object::Number(left / right),
             }
         }
     }

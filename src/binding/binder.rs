@@ -1,5 +1,5 @@
 use crate::{
-    common::types::Type::Number,
+    common::types::Type,
     syntax::{
         syntax_tree::{
             BinaryExpression, Expression, LiteralExpression, ParenthesizedExpression,
@@ -81,11 +81,12 @@ impl Binder {
         right: &BoundExpression,
     ) -> Option<BoundUnaryOperatorKind> {
         match right.get_type() {
-            Number => match kind {
+            Type::Number => match kind {
                 TokenKind::Plus => Some(BoundUnaryOperatorKind::Identity),
                 TokenKind::Minus => Some(BoundUnaryOperatorKind::Negation),
                 _ => None,
             },
+            Type::Boolean => None,
         }
     }
 
@@ -96,13 +97,17 @@ impl Binder {
         right: &BoundExpression,
     ) -> Option<BoundBinaryOperatorKind> {
         match (left.get_type(), right.get_type()) {
-            (Number, Number) => match kind {
+            (Type::Number, Type::Number) => match kind {
                 TokenKind::Plus => Some(BoundBinaryOperatorKind::Addition),
                 TokenKind::Minus => Some(BoundBinaryOperatorKind::Subtraction),
                 TokenKind::Star => Some(BoundBinaryOperatorKind::Multiplication),
                 TokenKind::Slash => Some(BoundBinaryOperatorKind::Division),
                 _ => None,
             },
+            (Type::Boolean, Type::Boolean) => match kind {
+                _ => None,
+            },
+            _ => None,
         }
     }
 }

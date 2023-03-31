@@ -62,6 +62,14 @@ impl Lexer {
                             TokenKind::Number,
                             self.source[start..self.current].iter().collect(),
                         )
+                    } else if char.is_ascii_alphabetic() {
+                        let start = self.current - 1;
+                        while self.peek(0).is_ascii_alphanumeric() {
+                            self.advance();
+                        }
+                        let lexeme = self.source[start..self.current].iter().collect::<String>();
+                        let kind = TokenKind::get_lexeme_type(&lexeme);
+                        Token::new(kind, lexeme)
                     } else {
                         self.diagnostics
                             .push(format!("Unexpected character '{char}'"));
