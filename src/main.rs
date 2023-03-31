@@ -1,4 +1,9 @@
-use std::io::{stdin, stdout, Write};
+use std::{
+    fmt::Display,
+    io::{stdin, stdout, Write},
+};
+
+use colored::Colorize;
 
 use crab::{binding::binder::Binder, evaluator::evaluate, syntax::syntax_tree::SyntaxTree};
 
@@ -23,15 +28,15 @@ fn main() {
                     let bound_tree = binder.bind(syntax_tree.root);
 
                     if show_tree {
-                        println!("{bound_tree:#?}");
+                        print_colored_string(format!("{bound_tree:#?}"), (155, 155, 155));
                     }
 
                     if !binder.diagnostics.is_empty() {
                         for diagnostic in binder.diagnostics {
-                            eprintln!("ERROR: {diagnostic}.");
+                            print_colored_string(format!("ERROR: {diagnostic}."), (255, 0, 0));
                         }
                     } else {
-                        println!("{}", evaluate(bound_tree));
+                        print_colored_string(evaluate(bound_tree), (255, 255, 255));
                     }
                 }
             }
@@ -39,4 +44,14 @@ fn main() {
 
         line.clear();
     }
+}
+
+fn print_colored_string<T>(output: T, color: (u8, u8, u8))
+where
+    T: Display,
+{
+    println!(
+        "{}",
+        format!("{output}").truecolor(color.0, color.1, color.2)
+    );
 }
