@@ -40,6 +40,24 @@ impl Lexer {
                 '-' => Token::new(TokenKind::Minus, "-".to_string()),
                 '*' => Token::new(TokenKind::Star, "*".to_string()),
                 '/' => Token::new(TokenKind::Slash, "/".to_string()),
+                '!' => Token::new(TokenKind::Bang, "!".to_string()),
+                '&' => {
+                    if self.peek(0) == '&' {
+                        self.advance();
+                        Token::new(TokenKind::AmpersandAmpersand, "&&".to_string())
+                    } else {
+                        Token::new(TokenKind::Ampersand, "&".to_string())
+                    }
+                }
+                '|' => {
+                    if self.peek(0) == '|' {
+                        self.advance();
+                        Token::new(TokenKind::PipePipe, "||".to_string())
+                    } else {
+                        Token::new(TokenKind::Pipe, "|".to_string())
+                    }
+                }
+
                 '(' => Token::new(TokenKind::OpenParen, "(".to_string()),
                 ')' => Token::new(TokenKind::CloseParen, ")".to_string()),
 

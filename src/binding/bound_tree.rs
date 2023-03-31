@@ -6,12 +6,15 @@ pub enum BoundBinaryOperatorKind {
     Subtraction,
     Multiplication,
     Division,
+    LogicalAnd,
+    LogicalOr,
 }
 
 #[derive(Debug)]
 pub enum BoundUnaryOperatorKind {
     Identity,
     Negation,
+    LogicalNegation,
 }
 
 #[derive(Debug)]

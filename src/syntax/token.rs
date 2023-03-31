@@ -7,6 +7,12 @@ pub enum TokenKind {
     Star,
     Slash,
 
+    Bang,
+    Ampersand,
+    AmpersandAmpersand,
+    Pipe,
+    PipePipe,
+
     OpenParen,
     CloseParen,
 
@@ -25,15 +31,17 @@ pub enum TokenKind {
 impl TokenKind {
     pub(super) fn get_unary_precedence(&self) -> usize {
         match self {
-            TokenKind::Plus | TokenKind::Minus => 3,
+            TokenKind::Plus | TokenKind::Minus | TokenKind::Bang => 5,
             _ => 0,
         }
     }
 
     pub(super) fn get_binary_precedence(&self) -> usize {
         match self {
-            TokenKind::Star | TokenKind::Slash => 2,
-            TokenKind::Plus | TokenKind::Minus => 1,
+            TokenKind::Star | TokenKind::Slash => 4,
+            TokenKind::Plus | TokenKind::Minus => 3,
+            TokenKind::AmpersandAmpersand => 2,
+            TokenKind::PipePipe => 1,
             _ => 0,
         }
     }
@@ -54,6 +62,12 @@ impl Display for TokenKind {
             TokenKind::Minus => write!(f, "-"),
             TokenKind::Star => write!(f, "*"),
             TokenKind::Slash => write!(f, "/"),
+
+            TokenKind::Bang => write!(f, "!"),
+            TokenKind::Ampersand => write!(f, "&"),
+            TokenKind::AmpersandAmpersand => write!(f, "&&"),
+            TokenKind::Pipe => write!(f, "|"),
+            TokenKind::PipePipe => write!(f, "||"),
 
             TokenKind::OpenParen => write!(f, "("),
             TokenKind::CloseParen => write!(f, ")"),

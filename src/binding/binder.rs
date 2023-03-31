@@ -86,7 +86,10 @@ impl Binder {
                 TokenKind::Minus => Some(BoundUnaryOperatorKind::Negation),
                 _ => None,
             },
-            Type::Boolean => None,
+            Type::Boolean => match kind {
+                TokenKind::Bang => Some(BoundUnaryOperatorKind::LogicalNegation),
+                _ => None,
+            },
         }
     }
 
@@ -105,6 +108,8 @@ impl Binder {
                 _ => None,
             },
             (Type::Boolean, Type::Boolean) => match kind {
+                TokenKind::AmpersandAmpersand => Some(BoundBinaryOperatorKind::LogicalAnd),
+                TokenKind::PipePipe => Some(BoundBinaryOperatorKind::LogicalOr),
                 _ => None,
             },
             _ => None,
