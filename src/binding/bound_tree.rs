@@ -9,8 +9,12 @@ pub enum BoundBinaryOperationKind {
     Subtraction,
     Multiplication,
     Division,
+
     LogicalAnd,
     LogicalOr,
+
+    NotEqual,
+    Equal,
 }
 
 #[derive(Debug)]
@@ -143,6 +147,34 @@ impl BoundBinaryOperator {
             BoundBinaryOperator::new(
                 TokenKind::PipePipe,
                 BoundBinaryOperationKind::LogicalOr,
+                Type::Boolean,
+                Type::Boolean,
+                Type::Boolean,
+            ),
+            BoundBinaryOperator::new(
+                TokenKind::BangEqual,
+                BoundBinaryOperationKind::NotEqual,
+                Type::Number,
+                Type::Number,
+                Type::Boolean,
+            ),
+            BoundBinaryOperator::new(
+                TokenKind::EqualEqual,
+                BoundBinaryOperationKind::Equal,
+                Type::Number,
+                Type::Number,
+                Type::Boolean,
+            ),
+            BoundBinaryOperator::new(
+                TokenKind::BangEqual,
+                BoundBinaryOperationKind::NotEqual,
+                Type::Boolean,
+                Type::Boolean,
+                Type::Boolean,
+            ),
+            BoundBinaryOperator::new(
+                TokenKind::EqualEqual,
+                BoundBinaryOperationKind::Equal,
                 Type::Boolean,
                 Type::Boolean,
                 Type::Boolean,

@@ -40,7 +40,22 @@ impl Lexer {
                 '-' => Token::new(TokenKind::Minus, "-".to_string()),
                 '*' => Token::new(TokenKind::Star, "*".to_string()),
                 '/' => Token::new(TokenKind::Slash, "/".to_string()),
-                '!' => Token::new(TokenKind::Bang, "!".to_string()),
+                '!' => {
+                    if self.peek(0) == '=' {
+                        self.advance();
+                        Token::new(TokenKind::BangEqual, "!=".to_string())
+                    } else {
+                        Token::new(TokenKind::Bang, "!".to_string())
+                    }
+                }
+                '=' => {
+                    if self.peek(0) == '=' {
+                        self.advance();
+                        Token::new(TokenKind::EqualEqual, "==".to_string())
+                    } else {
+                        Token::new(TokenKind::Equal, "&".to_string())
+                    }
+                }
                 '&' => {
                     if self.peek(0) == '&' {
                         self.advance();

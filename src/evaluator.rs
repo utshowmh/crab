@@ -36,12 +36,16 @@ fn evaluate_expression(root: BoundExpression) -> Object {
                 BoundBinaryOperationKind::Division => {
                     Object::Number(left.as_number() / right.as_number())
                 }
+
                 BoundBinaryOperationKind::LogicalAnd => {
                     Object::Boolean(left.as_boolean() && right.as_boolean())
                 }
                 BoundBinaryOperationKind::LogicalOr => {
                     Object::Boolean(left.as_boolean() || right.as_boolean())
                 }
+
+                BoundBinaryOperationKind::NotEqual => Object::Boolean(left != right),
+                BoundBinaryOperationKind::Equal => Object::Boolean(left == right),
             }
         }
     }
