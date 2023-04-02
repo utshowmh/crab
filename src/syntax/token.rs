@@ -32,24 +32,6 @@ pub enum TokenKind {
 }
 
 impl TokenKind {
-    pub(super) fn get_unary_precedence(&self) -> usize {
-        match self {
-            TokenKind::Plus | TokenKind::Minus | TokenKind::Bang => 6,
-            _ => 0,
-        }
-    }
-
-    pub(super) fn get_binary_precedence(&self) -> usize {
-        match self {
-            TokenKind::Star | TokenKind::Slash => 5,
-            TokenKind::Plus | TokenKind::Minus => 4,
-            TokenKind::BangEqual | TokenKind::EqualEqual => 3,
-            TokenKind::AmpersandAmpersand => 2,
-            TokenKind::PipePipe => 1,
-            _ => 0,
-        }
-    }
-
     pub(super) fn get_lexeme_type(lexeme: &str) -> Self {
         match lexeme {
             "true" => TokenKind::True,

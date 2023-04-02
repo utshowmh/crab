@@ -23,51 +23,91 @@ impl Parser {
     }
 
     pub(super) fn parse(&mut self) -> Expression {
-        let expression = self.parse_expression(0);
+        let expression = self.parse_expression();
         self.match_token(TokenKind::Eof);
         expression
     }
 
-    fn parse_expression(&mut self, parent_precedence: usize) -> Expression {
-        let mut left: Expression;
-        let unary_precedence = self.peek(0).kind.get_unary_precedence();
-        if unary_precedence != 0 && unary_precedence >= parent_precedence {
-            let operator = self.next_token();
-            let right = self.parse_expression(unary_precedence);
-            left = Expression::Unary(UnaryExpression::new(operator, right));
-        } else {
-            left = self.parse_primary_expression();
-        }
+    fn parse_expression(&mut self) -> Expression {
+        self.parse_or_expression()
+    }
 
-        loop {
-            let binary_precedence = self.peek(0).kind.get_binary_precedence();
-            if binary_precedence == 0 && binary_precedence <= parent_precedence {
-                break;
-            }
+    fn parse_or_expression(&mut self) -> Expression {
+        let mut left = self.parse_and_expression();
+        while self.token_matches(&[TokenKind::PipePipe]) {
             let operator = self.next_token();
-            let right = self.parse_expression(binary_precedence);
+            let right = self.parse_and_expression();
             left = Expression::Binary(BinaryExpression::new(left, operator, right));
         }
-
         left
+    }
+
+    fn parse_and_expression(&mut self) -> Expression {
+        let mut left = self.parse_equality_expression();
+        while self.token_matches(&[TokenKind::AmpersandAmpersand]) {
+            let operator = self.next_token();
+            let right = self.parse_equality_expression();
+            left = Expression::Binary(BinaryExpression::new(left, operator, right));
+        }
+        left
+    }
+
+    fn parse_equality_expression(&mut self) -> Expression {
+        let mut left = self.parse_additive_expression();
+        while self.token_matches(&[TokenKind::BangEqual, TokenKind::EqualEqual]) {
+            let operator = self.next_token();
+            let right = self.parse_additive_expression();
+            left = Expression::Binary(BinaryExpression::new(left, operator, right));
+        }
+        left
+    }
+
+    fn parse_additive_expression(&mut self) -> Expression {
+        let mut left = self.parse_multiplicative_expression();
+        while self.token_matches(&[TokenKind::Plus, TokenKind::Minus]) {
+            let operator = self.next_token();
+            let right = self.parse_multiplicative_expression();
+            left = Expression::Binary(BinaryExpression::new(left, operator, right));
+        }
+        left
+    }
+
+    fn parse_multiplicative_expression(&mut self) -> Expression {
+        let mut left = self.parse_unary_expression();
+        while self.token_matches(&[TokenKind::Star, TokenKind::Slash]) {
+            let operator = self.next_token();
+            let right = self.parse_unary_expression();
+            left = Expression::Binary(BinaryExpression::new(left, operator, right));
+        }
+        left
+    }
+
+    fn parse_unary_expression(&mut self) -> Expression {
+        if self.token_matches(&[TokenKind::Plus, TokenKind::Minus, TokenKind::Bang]) {
+            let operator = self.next_token();
+            let right = self.parse_unary_expression();
+            Expression::Unary(UnaryExpression::new(operator, right))
+        } else {
+            self.parse_primary_expression()
+        }
     }
 
     fn parse_primary_expression(&mut self) -> Expression {
         match self.peek(0).kind {
             TokenKind::OpenParen => {
                 self.next_token();
-                let expression = self.parse_expression(0);
+                let expression = self.parse_expression();
                 self.match_token(TokenKind::CloseParen);
                 Expression::Parenthesized(ParenthesizedExpression::new(expression))
             }
             TokenKind::True | TokenKind::False => {
                 let token = self.next_token();
-                let value = token.lexeme.parse().unwrap_or(false);
+                let value = token.lexeme.parse().unwrap();
                 Expression::Literal(LiteralExpression::new(token, Object::Boolean(value)))
             }
             _ => {
                 let token = self.match_token(TokenKind::Number);
-                let value = token.lexeme.parse().unwrap_or(0);
+                let value = token.lexeme.parse().unwrap();
                 Expression::Literal(LiteralExpression::new(token, Object::Number(value)))
             }
         }
@@ -102,5 +142,9 @@ impl Parser {
             self.advance();
             Token::new(kind, "0".to_string())
         }
+    }
+
+    fn token_matches(&self, kinds: &[TokenKind]) -> bool {
+        kinds.contains(&self.peek(0).kind)
     }
 }

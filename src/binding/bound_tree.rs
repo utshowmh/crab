@@ -239,7 +239,7 @@ impl BoundUnaryExpression {
     }
 
     fn get_type(&self) -> Type {
-        self.right.get_type()
+        self.operator.result_type.clone()
     }
 }
 
@@ -264,6 +264,6 @@ impl BoundBinaryExpression {
     }
 
     fn get_type(&self) -> Type {
-        self.left.get_type()
+        self.operator.result_type.clone()
     }
 }

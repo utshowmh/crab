@@ -24,12 +24,12 @@ fn main() {
                 if !line.is_empty() {
                     let syntax_tree = SyntaxTree::new(line);
 
+                    if show_tree {
+                        print_colored_string(format!("{:#?}", syntax_tree.root), (155, 155, 155));
+                    }
+
                     let mut binder = Binder::new(syntax_tree.diagnostics);
                     let bound_tree = binder.bind(syntax_tree.root);
-
-                    if show_tree {
-                        print_colored_string(format!("{bound_tree:#?}"), (155, 155, 155));
-                    }
 
                     if !binder.diagnostics.is_empty() {
                         for diagnostic in binder.diagnostics {
