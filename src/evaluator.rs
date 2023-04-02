@@ -1,5 +1,5 @@
 use crate::{
-    binding::bound_tree::{BoundBinaryOperatorKind, BoundExpression, BoundUnaryOperatorKind},
+    binding::bound_tree::{BoundBinaryOperationKind, BoundExpression, BoundUnaryOperationKind},
     common::types::Object,
 };
 
@@ -13,33 +13,33 @@ fn evaluate_expression(root: BoundExpression) -> Object {
 
         BoundExpression::Unary(expression) => {
             let right = evaluate_expression(*expression.right);
-            match expression.operator {
-                BoundUnaryOperatorKind::Identity => Object::Number(right.as_number()),
-                BoundUnaryOperatorKind::Negation => Object::Number(-right.as_number()),
-                BoundUnaryOperatorKind::LogicalNegation => Object::Boolean(!right.as_boolean()),
+            match expression.operator.operation_kind {
+                BoundUnaryOperationKind::Identity => Object::Number(right.as_number()),
+                BoundUnaryOperationKind::Negation => Object::Number(-right.as_number()),
+                BoundUnaryOperationKind::LogicalNegation => Object::Boolean(!right.as_boolean()),
             }
         }
 
         BoundExpression::Binary(expression) => {
             let left = evaluate_expression(*expression.left);
             let right = evaluate_expression(*expression.right);
-            match expression.operator {
-                BoundBinaryOperatorKind::Addition => {
+            match expression.operator.operation_kind {
+                BoundBinaryOperationKind::Addition => {
                     Object::Number(left.as_number() + right.as_number())
                 }
-                BoundBinaryOperatorKind::Subtraction => {
+                BoundBinaryOperationKind::Subtraction => {
                     Object::Number(left.as_number() - right.as_number())
                 }
-                BoundBinaryOperatorKind::Multiplication => {
+                BoundBinaryOperationKind::Multiplication => {
                     Object::Number(left.as_number() * right.as_number())
                 }
-                BoundBinaryOperatorKind::Division => {
+                BoundBinaryOperationKind::Division => {
                     Object::Number(left.as_number() / right.as_number())
                 }
-                BoundBinaryOperatorKind::LogicalAnd => {
+                BoundBinaryOperationKind::LogicalAnd => {
                     Object::Boolean(left.as_boolean() && right.as_boolean())
                 }
-                BoundBinaryOperatorKind::LogicalOr => {
+                BoundBinaryOperationKind::LogicalOr => {
                     Object::Boolean(left.as_boolean() || right.as_boolean())
                 }
             }

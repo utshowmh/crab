@@ -1,17 +1,10 @@
-use crate::{
-    common::types::Type,
-    syntax::{
-        syntax_tree::{
-            BinaryExpression, Expression, LiteralExpression, ParenthesizedExpression,
-            UnaryExpression,
-        },
-        token::TokenKind,
-    },
+use crate::syntax::syntax_tree::{
+    BinaryExpression, Expression, LiteralExpression, ParenthesizedExpression, UnaryExpression,
 };
 
 use super::bound_tree::{
-    BoundBinaryExpression, BoundBinaryOperatorKind, BoundExpression, BoundLiteralExpression,
-    BoundUnaryExpression, BoundUnaryOperatorKind,
+    BoundBinaryExpression, BoundBinaryOperator, BoundExpression, BoundLiteralExpression,
+    BoundUnaryExpression, BoundUnaryOperator,
 };
 
 pub struct Binder {
@@ -49,7 +42,8 @@ impl Binder {
 
     fn bind_unary_expression(&mut self, expression: UnaryExpression) -> BoundExpression {
         let right = self.bind_expression(*expression.right);
-        if let Some(operator) = self.get_unary_operator_kind(expression.operator.kind, &right) {
+        if let Some(operator) = BoundUnaryOperator::bind(expression.operator.kind, right.get_type())
+        {
             BoundExpression::Unary(BoundUnaryExpression::new(operator, right))
         } else {
             self.diagnostics.push(format!(
@@ -65,7 +59,7 @@ impl Binder {
         let left = self.bind_expression(*expression.left);
         let right = self.bind_expression(*expression.right);
         if let Some(operator) =
-            self.get_binary_operator_kind(expression.operator.kind, &left, &right)
+            BoundBinaryOperator::bind(expression.operator.kind, left.get_type(), right.get_type())
         {
             BoundExpression::Binary(BoundBinaryExpression::new(left, operator, right))
         } else {
@@ -76,47 +70,6 @@ impl Binder {
                 right.get_type()
             ));
             left
-        }
-    }
-
-    fn get_unary_operator_kind(
-        &self,
-        kind: TokenKind,
-        right: &BoundExpression,
-    ) -> Option<BoundUnaryOperatorKind> {
-        match right.get_type() {
-            Type::Number => match kind {
-                TokenKind::Plus => Some(BoundUnaryOperatorKind::Identity),
-                TokenKind::Minus => Some(BoundUnaryOperatorKind::Negation),
-                _ => None,
-            },
-            Type::Boolean => match kind {
-                TokenKind::Bang => Some(BoundUnaryOperatorKind::LogicalNegation),
-                _ => None,
-            },
-        }
-    }
-
-    fn get_binary_operator_kind(
-        &self,
-        kind: TokenKind,
-        left: &BoundExpression,
-        right: &BoundExpression,
-    ) -> Option<BoundBinaryOperatorKind> {
-        match (left.get_type(), right.get_type()) {
-            (Type::Number, Type::Number) => match kind {
-                TokenKind::Plus => Some(BoundBinaryOperatorKind::Addition),
-                TokenKind::Minus => Some(BoundBinaryOperatorKind::Subtraction),
-                TokenKind::Star => Some(BoundBinaryOperatorKind::Multiplication),
-                TokenKind::Slash => Some(BoundBinaryOperatorKind::Division),
-                _ => None,
-            },
-            (Type::Boolean, Type::Boolean) => match kind {
-                TokenKind::AmpersandAmpersand => Some(BoundBinaryOperatorKind::LogicalAnd),
-                TokenKind::PipePipe => Some(BoundBinaryOperatorKind::LogicalOr),
-                _ => None,
-            },
-            _ => None,
         }
     }
 }

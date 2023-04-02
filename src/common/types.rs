@@ -3,7 +3,7 @@ use std::fmt::Display;
 type Number = i32;
 type Boolean = bool;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum Type {
     Number,
     Boolean,
