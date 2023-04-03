@@ -29,7 +29,12 @@ name = "crab"
 version = "0.1.0"
 dependencies = [
  "colored",
+ "crabc",
 ]
+
+[[package]]
+name = "crabc"
+version = "0.1.0"
 
 [[package]]
 name = "hermit-abi"

@@ -4,7 +4,7 @@ use super::{lexer::Lexer, parser::Parser, token::Token};
 
 pub struct SyntaxTree {
     pub root: Expression,
-    pub diagnostics: Vec<String>,
+    pub(crate) diagnostics: Vec<String>,
 }
 
 impl SyntaxTree {
@@ -28,19 +28,18 @@ pub enum Expression {
 
 #[derive(Debug)]
 pub struct LiteralExpression {
-    pub token: Token,
-    pub value: Object,
+    pub(crate) value: Object,
 }
 
 impl LiteralExpression {
-    pub(super) fn new(token: Token, value: Object) -> Self {
-        Self { token, value }
+    pub(super) fn new(value: Object) -> Self {
+        Self { value }
     }
 }
 
 #[derive(Debug)]
 pub struct ParenthesizedExpression {
-    pub expression: Box<Expression>,
+    pub(crate) expression: Box<Expression>,
 }
 
 impl ParenthesizedExpression {
@@ -53,8 +52,8 @@ impl ParenthesizedExpression {
 
 #[derive(Debug)]
 pub struct UnaryExpression {
-    pub operator: Token,
-    pub right: Box<Expression>,
+    pub(crate) operator: Token,
+    pub(crate) right: Box<Expression>,
 }
 
 impl UnaryExpression {
@@ -68,9 +67,9 @@ impl UnaryExpression {
 
 #[derive(Debug)]
 pub struct BinaryExpression {
-    pub left: Box<Expression>,
-    pub operator: Token,
-    pub right: Box<Expression>,
+    pub(crate) left: Box<Expression>,
+    pub(crate) operator: Token,
+    pub(crate) right: Box<Expression>,
 }
 
 impl BinaryExpression {

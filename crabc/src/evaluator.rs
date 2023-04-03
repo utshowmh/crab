@@ -3,12 +3,12 @@ use crate::{
     common::types::Object,
 };
 
-pub fn evaluate(root: BoundExpression) -> Object {
-    evaluate_expression(root)
+pub(crate) fn evaluate(bound_expression: BoundExpression) -> Object {
+    evaluate_expression(bound_expression)
 }
 
-fn evaluate_expression(root: BoundExpression) -> Object {
-    match root {
+fn evaluate_expression(bound_expression: BoundExpression) -> Object {
+    match bound_expression {
         BoundExpression::Literal(expression) => expression.value,
 
         BoundExpression::Unary(expression) => {

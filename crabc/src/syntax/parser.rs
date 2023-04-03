@@ -103,12 +103,12 @@ impl Parser {
             TokenKind::True | TokenKind::False => {
                 let token = self.next_token();
                 let value = token.lexeme.parse().unwrap();
-                Expression::Literal(LiteralExpression::new(token, Object::Boolean(value)))
+                Expression::Literal(LiteralExpression::new(Object::Boolean(value)))
             }
             _ => {
                 let token = self.match_token(TokenKind::Number);
                 let value = token.lexeme.parse().unwrap();
-                Expression::Literal(LiteralExpression::new(token, Object::Number(value)))
+                Expression::Literal(LiteralExpression::new(Object::Number(value)))
             }
         }
     }

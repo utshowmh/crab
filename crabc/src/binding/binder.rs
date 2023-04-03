@@ -7,16 +7,16 @@ use super::bound_tree::{
     BoundUnaryExpression, BoundUnaryOperator,
 };
 
-pub struct Binder {
-    pub diagnostics: Vec<String>,
+pub(crate) struct Binder {
+    pub(crate) diagnostics: Vec<String>,
 }
 
 impl Binder {
-    pub fn new(diagnostics: Vec<String>) -> Self {
+    pub(crate) fn new(diagnostics: Vec<String>) -> Self {
         Self { diagnostics }
     }
 
-    pub fn bind(&mut self, root: Expression) -> BoundExpression {
+    pub(crate) fn bind(&mut self, root: Expression) -> BoundExpression {
         self.bind_expression(root)
     }
 

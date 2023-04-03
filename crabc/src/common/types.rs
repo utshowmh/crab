@@ -4,7 +4,7 @@ type Number = i32;
 type Boolean = bool;
 
 #[derive(Debug, PartialEq, Clone)]
-pub enum Type {
+pub(crate) enum Type {
     Number,
     Boolean,
 }

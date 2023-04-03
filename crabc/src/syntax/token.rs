@@ -1,7 +1,7 @@
 use std::fmt::Display;
 
 #[derive(Debug, Clone, PartialEq)]
-pub enum TokenKind {
+pub(crate) enum TokenKind {
     Plus,
     Minus,
     Star,
@@ -76,13 +76,13 @@ impl Display for TokenKind {
 }
 
 #[derive(Debug, Clone)]
-pub struct Token {
-    pub kind: TokenKind,
-    pub lexeme: String,
+pub(crate) struct Token {
+    pub(crate) kind: TokenKind,
+    pub(crate) lexeme: String,
 }
 
 impl Token {
-    pub fn new(kind: TokenKind, lexeme: String) -> Self {
+    pub(super) fn new(kind: TokenKind, lexeme: String) -> Self {
         Self { kind, lexeme }
     }
 }

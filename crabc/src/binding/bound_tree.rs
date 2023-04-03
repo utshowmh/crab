@@ -4,7 +4,7 @@ use crate::{
 };
 
 #[derive(Debug)]
-pub enum BoundBinaryOperationKind {
+pub(crate) enum BoundBinaryOperationKind {
     Addition,
     Subtraction,
     Multiplication,
@@ -18,18 +18,18 @@ pub enum BoundBinaryOperationKind {
 }
 
 #[derive(Debug)]
-pub enum BoundUnaryOperationKind {
+pub(crate) enum BoundUnaryOperationKind {
     Identity,
     Negation,
     LogicalNegation,
 }
 
 #[derive(Debug)]
-pub struct BoundUnaryOperator {
-    pub operator_kind: TokenKind,
-    pub operation_kind: BoundUnaryOperationKind,
-    pub right_type: Type,
-    pub result_type: Type,
+pub(crate) struct BoundUnaryOperator {
+    pub(super) operator_kind: TokenKind,
+    pub(crate) operation_kind: BoundUnaryOperationKind,
+    pub(super) right_type: Type,
+    pub(super) result_type: Type,
 }
 
 impl BoundUnaryOperator {
@@ -78,12 +78,12 @@ impl BoundUnaryOperator {
 }
 
 #[derive(Debug)]
-pub struct BoundBinaryOperator {
-    pub operator_kind: TokenKind,
-    pub operation_kind: BoundBinaryOperationKind,
-    pub left_type: Type,
-    pub right_type: Type,
-    pub result_type: Type,
+pub(crate) struct BoundBinaryOperator {
+    pub(super) operator_kind: TokenKind,
+    pub(crate) operation_kind: BoundBinaryOperationKind,
+    pub(super) left_type: Type,
+    pub(super) right_type: Type,
+    pub(super) result_type: Type,
 }
 
 impl BoundBinaryOperator {
@@ -193,7 +193,7 @@ impl BoundBinaryOperator {
 }
 
 #[derive(Debug)]
-pub enum BoundExpression {
+pub(crate) enum BoundExpression {
     Literal(BoundLiteralExpression),
     Unary(BoundUnaryExpression),
     Binary(BoundBinaryExpression),
@@ -210,8 +210,8 @@ impl BoundExpression {
 }
 
 #[derive(Debug)]
-pub struct BoundLiteralExpression {
-    pub value: Object,
+pub(crate) struct BoundLiteralExpression {
+    pub(crate) value: Object,
 }
 
 impl BoundLiteralExpression {
@@ -225,9 +225,9 @@ impl BoundLiteralExpression {
 }
 
 #[derive(Debug)]
-pub struct BoundUnaryExpression {
-    pub operator: BoundUnaryOperator,
-    pub right: Box<BoundExpression>,
+pub(crate) struct BoundUnaryExpression {
+    pub(crate) operator: BoundUnaryOperator,
+    pub(crate) right: Box<BoundExpression>,
 }
 
 impl BoundUnaryExpression {
@@ -244,10 +244,10 @@ impl BoundUnaryExpression {
 }
 
 #[derive(Debug)]
-pub struct BoundBinaryExpression {
-    pub left: Box<BoundExpression>,
-    pub operator: BoundBinaryOperator,
-    pub right: Box<BoundExpression>,
+pub(crate) struct BoundBinaryExpression {
+    pub(crate) left: Box<BoundExpression>,
+    pub(crate) operator: BoundBinaryOperator,
+    pub(crate) right: Box<BoundExpression>,
 }
 
 impl BoundBinaryExpression {

@@ -5,7 +5,7 @@ use std::{
 
 use colored::Colorize;
 
-use crab::{binding::binder::Binder, evaluator::evaluate, syntax::syntax_tree::SyntaxTree};
+use crabc::{compilation::Compilation, syntax::syntax_tree::SyntaxTree};
 
 fn main() {
     let mut line = String::new();
@@ -28,15 +28,14 @@ fn main() {
                         print_colored_string(format!("{:#?}", syntax_tree.root), (155, 155, 155));
                     }
 
-                    let mut binder = Binder::new(syntax_tree.diagnostics);
-                    let bound_tree = binder.bind(syntax_tree.root);
+                    let evaluation_result = Compilation::evaluate(syntax_tree);
 
-                    if !binder.diagnostics.is_empty() {
-                        for diagnostic in binder.diagnostics {
+                    if evaluation_result.diagnostics.is_empty() {
+                        print_colored_string(evaluation_result.value, (255, 255, 255));
+                    } else {
+                        for diagnostic in evaluation_result.diagnostics {
                             print_colored_string(format!("ERROR: {diagnostic}."), (255, 0, 0));
                         }
-                    } else {
-                        print_colored_string(evaluate(bound_tree), (255, 255, 255));
                     }
                 }
             }
