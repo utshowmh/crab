@@ -41,22 +41,15 @@ fn main() {
                                 "{}",
                                 format!("Error: {}.", diagnostic.message).truecolor(255, 0, 0),
                             );
-                            let prefix = &line[0..diagnostic.position.start];
-                            let error = &line[diagnostic.position.start..diagnostic.position.end];
-                            let suffix = &line[diagnostic.position.end..line.len()];
-                            eprint!("   ");
-                            eprint!("{prefix}");
-                            eprint!("{}", error.truecolor(255, 0, 0));
-                            eprint!("{suffix}");
-                            eprintln!("");
+                            eprintln!("   {line}");
                             eprint!("   ");
                             for _ in 0..diagnostic.position.start {
                                 eprint!(" ");
                             }
                             for _ in diagnostic.position.start..diagnostic.position.end {
-                                eprint!("-");
+                                eprint!("{}", "^".truecolor(255, 255, 0));
                             }
-                            eprintln!(" here");
+                            eprintln!("{}", " here".truecolor(255, 255, 0));
                         }
                     }
                 }

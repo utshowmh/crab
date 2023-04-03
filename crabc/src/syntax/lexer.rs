@@ -38,29 +38,29 @@ impl Lexer {
             Token::new(
                 TokenKind::Eof,
                 "\0".to_string(),
-                Position::new(self.current - 1, 1),
+                Position::new(self.current - 1, self.current),
             )
         } else {
             match self.next_char() {
                 '+' => Token::new(
                     TokenKind::Plus,
                     "+".to_string(),
-                    Position::new(self.current - 1, 1),
+                    Position::new(self.current - 1, self.current),
                 ),
                 '-' => Token::new(
                     TokenKind::Minus,
                     "-".to_string(),
-                    Position::new(self.current - 1, 1),
+                    Position::new(self.current - 1, self.current),
                 ),
                 '*' => Token::new(
                     TokenKind::Star,
                     "*".to_string(),
-                    Position::new(self.current - 1, 1),
+                    Position::new(self.current - 1, self.current),
                 ),
                 '/' => Token::new(
                     TokenKind::Slash,
                     "/".to_string(),
-                    Position::new(self.current - 1, 1),
+                    Position::new(self.current - 1, self.current),
                 ),
                 '!' => {
                     if self.peek(0) == '=' {
@@ -68,13 +68,13 @@ impl Lexer {
                         Token::new(
                             TokenKind::BangEqual,
                             "!=".to_string(),
-                            Position::new(self.current - 2, 2),
+                            Position::new(self.current - 2, self.current),
                         )
                     } else {
                         Token::new(
                             TokenKind::Bang,
                             "!".to_string(),
-                            Position::new(self.current - 1, 1),
+                            Position::new(self.current - 1, self.current),
                         )
                     }
                 }
@@ -84,13 +84,13 @@ impl Lexer {
                         Token::new(
                             TokenKind::EqualEqual,
                             "==".to_string(),
-                            Position::new(self.current - 2, 2),
+                            Position::new(self.current - 2, self.current),
                         )
                     } else {
                         Token::new(
                             TokenKind::Equal,
                             "&".to_string(),
-                            Position::new(self.current - 1, 1),
+                            Position::new(self.current - 1, self.current),
                         )
                     }
                 }
@@ -100,13 +100,13 @@ impl Lexer {
                         Token::new(
                             TokenKind::AmpersandAmpersand,
                             "&&".to_string(),
-                            Position::new(self.current - 2, 2),
+                            Position::new(self.current - 2, self.current),
                         )
                     } else {
                         Token::new(
                             TokenKind::Ampersand,
                             "&".to_string(),
-                            Position::new(self.current - 1, 1),
+                            Position::new(self.current - 1, self.current),
                         )
                     }
                 }
@@ -116,13 +116,13 @@ impl Lexer {
                         Token::new(
                             TokenKind::PipePipe,
                             "||".to_string(),
-                            Position::new(self.current - 2, 2),
+                            Position::new(self.current - 2, self.current),
                         )
                     } else {
                         Token::new(
                             TokenKind::Pipe,
                             "|".to_string(),
-                            Position::new(self.current - 1, 1),
+                            Position::new(self.current - 1, self.current),
                         )
                     }
                 }
@@ -130,12 +130,12 @@ impl Lexer {
                 '(' => Token::new(
                     TokenKind::OpenParen,
                     "(".to_string(),
-                    Position::new(self.current - 1, 1),
+                    Position::new(self.current - 1, self.current),
                 ),
                 ')' => Token::new(
                     TokenKind::CloseParen,
                     ")".to_string(),
-                    Position::new(self.current - 1, 1),
+                    Position::new(self.current - 1, self.current),
                 ),
 
                 char => {
@@ -172,7 +172,7 @@ impl Lexer {
                         Token::new(
                             TokenKind::Invalid,
                             char.to_string(),
-                            Position::new(self.current - 1, 1),
+                            Position::new(self.current - 1, self.current),
                         )
                     }
                 }

@@ -142,8 +142,9 @@ impl Parser {
         } else {
             self.diagnostic_bag
                 .unexpected_token(token.position, kind.clone(), token.kind);
+            let token = Token::new(kind, "1".to_string(), self.peek(0).position);
             self.advance();
-            Token::new(kind, "0".to_string(), self.peek(0).position)
+            token
         }
     }
 

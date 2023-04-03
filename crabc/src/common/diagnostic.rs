@@ -5,17 +5,12 @@ use super::types::Type;
 #[derive(Debug, Clone)]
 pub struct Position {
     pub start: usize,
-    pub length: usize,
     pub end: usize,
 }
 
 impl Position {
-    pub(crate) fn new(start: usize, length: usize) -> Self {
-        Self {
-            start,
-            length,
-            end: start + length,
-        }
+    pub(crate) fn new(start: usize, end: usize) -> Self {
+        Self { start, end }
     }
 }
 
