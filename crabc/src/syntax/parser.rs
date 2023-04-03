@@ -1,4 +1,7 @@
-use crate::common::types::Object;
+use crate::common::{
+    diagnostic::{DiagnosticBag, Position},
+    types::Object,
+};
 
 use super::{
     syntax_tree::{
@@ -10,15 +13,15 @@ use super::{
 pub(super) struct Parser {
     tokens: Vec<Token>,
     current: usize,
-    pub(super) diagnostics: Vec<String>,
+    pub(super) diagnostic_bag: DiagnosticBag,
 }
 
 impl Parser {
-    pub(super) fn new(tokens: Vec<Token>, diagnostics: Vec<String>) -> Self {
+    pub(super) fn new(tokens: Vec<Token>, diagnostic_bag: DiagnosticBag) -> Self {
         Self {
             tokens,
             current: 0,
-            diagnostics,
+            diagnostic_bag,
         }
     }
 
@@ -118,7 +121,7 @@ impl Parser {
         if index < self.tokens.len() {
             self.tokens[index].clone()
         } else {
-            Token::new(TokenKind::Eof, "\0".to_string())
+            Token::new(TokenKind::Eof, "\0".to_string(), Position::new(0, 0))
         }
     }
 
@@ -133,14 +136,14 @@ impl Parser {
     }
 
     fn match_token(&mut self, kind: TokenKind) -> Token {
-        let peek_kind = self.peek(0).kind;
-        if peek_kind == kind {
+        let token = self.peek(0);
+        if &kind == &token.kind {
             self.next_token()
         } else {
-            self.diagnostics
-                .push(format!("Unexpected token '{peek_kind}', expected '{kind}'"));
+            self.diagnostic_bag
+                .unexpected_token(token.position, kind.clone(), token.kind);
             self.advance();
-            Token::new(kind, "0".to_string())
+            Token::new(kind, "0".to_string(), self.peek(0).position)
         }
     }
 

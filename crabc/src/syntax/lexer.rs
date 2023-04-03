@@ -1,9 +1,11 @@
+use crate::common::diagnostic::{DiagnosticBag, Position};
+
 use super::token::{Token, TokenKind};
 
 pub(super) struct Lexer {
     source: Vec<char>,
     current: usize,
-    pub(super) diagnostics: Vec<String>,
+    pub(super) diagnostic_bag: DiagnosticBag,
 }
 
 impl Lexer {
@@ -11,7 +13,7 @@ impl Lexer {
         Self {
             source: source.chars().collect(),
             current: 0,
-            diagnostics: Vec::new(),
+            diagnostic_bag: DiagnosticBag::new(),
         }
     }
 
@@ -33,48 +35,108 @@ impl Lexer {
 
     fn next_token(&mut self) -> Token {
         if self.source.len() <= self.current {
-            Token::new(TokenKind::Eof, "\0".to_string())
+            Token::new(
+                TokenKind::Eof,
+                "\0".to_string(),
+                Position::new(self.current - 1, 1),
+            )
         } else {
             match self.next_char() {
-                '+' => Token::new(TokenKind::Plus, "+".to_string()),
-                '-' => Token::new(TokenKind::Minus, "-".to_string()),
-                '*' => Token::new(TokenKind::Star, "*".to_string()),
-                '/' => Token::new(TokenKind::Slash, "/".to_string()),
+                '+' => Token::new(
+                    TokenKind::Plus,
+                    "+".to_string(),
+                    Position::new(self.current - 1, 1),
+                ),
+                '-' => Token::new(
+                    TokenKind::Minus,
+                    "-".to_string(),
+                    Position::new(self.current - 1, 1),
+                ),
+                '*' => Token::new(
+                    TokenKind::Star,
+                    "*".to_string(),
+                    Position::new(self.current - 1, 1),
+                ),
+                '/' => Token::new(
+                    TokenKind::Slash,
+                    "/".to_string(),
+                    Position::new(self.current - 1, 1),
+                ),
                 '!' => {
                     if self.peek(0) == '=' {
                         self.advance();
-                        Token::new(TokenKind::BangEqual, "!=".to_string())
+                        Token::new(
+                            TokenKind::BangEqual,
+                            "!=".to_string(),
+                            Position::new(self.current - 2, 2),
+                        )
                     } else {
-                        Token::new(TokenKind::Bang, "!".to_string())
+                        Token::new(
+                            TokenKind::Bang,
+                            "!".to_string(),
+                            Position::new(self.current - 1, 1),
+                        )
                     }
                 }
                 '=' => {
                     if self.peek(0) == '=' {
                         self.advance();
-                        Token::new(TokenKind::EqualEqual, "==".to_string())
+                        Token::new(
+                            TokenKind::EqualEqual,
+                            "==".to_string(),
+                            Position::new(self.current - 2, 2),
+                        )
                     } else {
-                        Token::new(TokenKind::Equal, "&".to_string())
+                        Token::new(
+                            TokenKind::Equal,
+                            "&".to_string(),
+                            Position::new(self.current - 1, 1),
+                        )
                     }
                 }
                 '&' => {
                     if self.peek(0) == '&' {
                         self.advance();
-                        Token::new(TokenKind::AmpersandAmpersand, "&&".to_string())
+                        Token::new(
+                            TokenKind::AmpersandAmpersand,
+                            "&&".to_string(),
+                            Position::new(self.current - 2, 2),
+                        )
                     } else {
-                        Token::new(TokenKind::Ampersand, "&".to_string())
+                        Token::new(
+                            TokenKind::Ampersand,
+                            "&".to_string(),
+                            Position::new(self.current - 1, 1),
+                        )
                     }
                 }
                 '|' => {
                     if self.peek(0) == '|' {
                         self.advance();
-                        Token::new(TokenKind::PipePipe, "||".to_string())
+                        Token::new(
+                            TokenKind::PipePipe,
+                            "||".to_string(),
+                            Position::new(self.current - 2, 2),
+                        )
                     } else {
-                        Token::new(TokenKind::Pipe, "|".to_string())
+                        Token::new(
+                            TokenKind::Pipe,
+                            "|".to_string(),
+                            Position::new(self.current - 1, 1),
+                        )
                     }
                 }
 
-                '(' => Token::new(TokenKind::OpenParen, "(".to_string()),
-                ')' => Token::new(TokenKind::CloseParen, ")".to_string()),
+                '(' => Token::new(
+                    TokenKind::OpenParen,
+                    "(".to_string(),
+                    Position::new(self.current - 1, 1),
+                ),
+                ')' => Token::new(
+                    TokenKind::CloseParen,
+                    ")".to_string(),
+                    Position::new(self.current - 1, 1),
+                ),
 
                 char => {
                     if char.is_ascii_whitespace() {
@@ -85,6 +147,7 @@ impl Lexer {
                         Token::new(
                             TokenKind::Whitespace,
                             self.source[start..self.current].iter().collect(),
+                            Position::new(start, self.current),
                         )
                     } else if char.is_ascii_digit() {
                         let start = self.current - 1;
@@ -94,6 +157,7 @@ impl Lexer {
                         Token::new(
                             TokenKind::Number,
                             self.source[start..self.current].iter().collect(),
+                            Position::new(start, self.current),
                         )
                     } else if char.is_ascii_alphabetic() {
                         let start = self.current - 1;
@@ -102,11 +166,14 @@ impl Lexer {
                         }
                         let lexeme = self.source[start..self.current].iter().collect::<String>();
                         let kind = TokenKind::get_lexeme_type(&lexeme);
-                        Token::new(kind, lexeme)
+                        Token::new(kind, lexeme, Position::new(start, self.current))
                     } else {
-                        self.diagnostics
-                            .push(format!("Unexpected character '{char}'"));
-                        Token::new(TokenKind::Invalid, char.to_string())
+                        self.diagnostic_bag.unexpected_character(self.current, char);
+                        Token::new(
+                            TokenKind::Invalid,
+                            char.to_string(),
+                            Position::new(self.current - 1, 1),
+                        )
                     }
                 }
             }

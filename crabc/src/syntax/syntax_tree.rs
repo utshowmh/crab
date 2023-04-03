@@ -1,19 +1,19 @@
-use crate::common::types::Object;
+use crate::common::{diagnostic::DiagnosticBag, types::Object};
 
 use super::{lexer::Lexer, parser::Parser, token::Token};
 
 pub struct SyntaxTree {
     pub root: Expression,
-    pub(crate) diagnostics: Vec<String>,
+    pub(crate) diagnostic_bag: DiagnosticBag,
 }
 
 impl SyntaxTree {
     pub fn new(source: &str) -> Self {
         let mut lexer = Lexer::new(source);
-        let mut parser = Parser::new(lexer.lex(), lexer.diagnostics);
+        let mut parser = Parser::new(lexer.lex(), lexer.diagnostic_bag);
         Self {
             root: parser.parse(),
-            diagnostics: parser.diagnostics,
+            diagnostic_bag: parser.diagnostic_bag,
         }
     }
 }

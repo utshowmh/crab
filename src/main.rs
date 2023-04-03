@@ -1,7 +1,4 @@
-use std::{
-    fmt::Display,
-    io::{stdin, stdout, Write},
-};
+use std::io::{stdin, stdout, Write};
 
 use colored::Colorize;
 
@@ -25,16 +22,41 @@ fn main() {
                     let syntax_tree = SyntaxTree::new(line);
 
                     if show_tree {
-                        print_colored_string(format!("{:#?}", syntax_tree.root), (155, 155, 155));
+                        println!(
+                            "{}",
+                            format!("{:#?}", syntax_tree.root).truecolor(155, 155, 155)
+                        );
                     }
 
                     let evaluation_result = Compilation::evaluate(syntax_tree);
 
-                    if evaluation_result.diagnostics.is_empty() {
-                        print_colored_string(evaluation_result.value, (255, 255, 255));
+                    if evaluation_result.diagnostic_bag.diagnostics.is_empty() {
+                        println!(
+                            "{}",
+                            format!("{}", evaluation_result.value).truecolor(255, 255, 255)
+                        );
                     } else {
-                        for diagnostic in evaluation_result.diagnostics {
-                            print_colored_string(format!("ERROR: {diagnostic}."), (255, 0, 0));
+                        for diagnostic in evaluation_result.diagnostic_bag.diagnostics {
+                            eprintln!(
+                                "{}",
+                                format!("Error: {}.", diagnostic.message).truecolor(255, 0, 0),
+                            );
+                            let prefix = &line[0..diagnostic.position.start];
+                            let error = &line[diagnostic.position.start..diagnostic.position.end];
+                            let suffix = &line[diagnostic.position.end..line.len()];
+                            eprint!("   ");
+                            eprint!("{prefix}");
+                            eprint!("{}", error.truecolor(255, 0, 0));
+                            eprint!("{suffix}");
+                            eprintln!("");
+                            eprint!("   ");
+                            for _ in 0..diagnostic.position.start {
+                                eprint!(" ");
+                            }
+                            for _ in diagnostic.position.start..diagnostic.position.end {
+                                eprint!("-");
+                            }
+                            eprintln!(" here");
                         }
                     }
                 }
@@ -43,14 +65,4 @@ fn main() {
 
         line.clear();
     }
-}
-
-fn print_colored_string<T>(output: T, color: (u8, u8, u8))
-where
-    T: Display,
-{
-    println!(
-        "{}",
-        format!("{output}").truecolor(color.0, color.1, color.2)
-    );
 }

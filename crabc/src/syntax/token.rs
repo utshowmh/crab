@@ -1,5 +1,7 @@
 use std::fmt::Display;
 
+use crate::common::diagnostic::Position;
+
 #[derive(Debug, Clone, PartialEq)]
 pub(crate) enum TokenKind {
     Plus,
@@ -79,10 +81,15 @@ impl Display for TokenKind {
 pub(crate) struct Token {
     pub(crate) kind: TokenKind,
     pub(crate) lexeme: String,
+    pub(crate) position: Position,
 }
 
 impl Token {
-    pub(super) fn new(kind: TokenKind, lexeme: String) -> Self {
-        Self { kind, lexeme }
+    pub(super) fn new(kind: TokenKind, lexeme: String, position: Position) -> Self {
+        Self {
+            kind,
+            lexeme,
+            position,
+        }
     }
 }
