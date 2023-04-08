@@ -1,4 +1,7 @@
-use std::io::{stdin, stdout, Write};
+use std::{
+    collections::HashMap,
+    io::{stdin, stdout, Write},
+};
 
 use colored::Colorize;
 
@@ -6,6 +9,7 @@ use crab::{compilation::Compilation, syntax::syntax_tree::SyntaxTree};
 
 fn main() {
     let mut line = String::new();
+    let mut variables = HashMap::new();
     let mut show_tree = false;
 
     loop {
@@ -28,7 +32,7 @@ fn main() {
                         );
                     }
 
-                    let evaluation_result = Compilation::evaluate(syntax_tree);
+                    let evaluation_result = Compilation::evaluate(syntax_tree, variables.clone());
 
                     if evaluation_result.diagnostic_bag.diagnostics.is_empty() {
                         println!(
@@ -52,10 +56,10 @@ fn main() {
                             eprintln!("{}", " here".truecolor(255, 255, 0));
                         }
                     }
+                    variables = evaluation_result.variables;
                 }
             }
         };
-
         line.clear();
     }
 }

@@ -1,20 +1,27 @@
+use std::collections::HashMap;
+
 use crate::{
     binding::binder::Binder,
     common::{diagnostic::DiagnosticBag, types::Object},
-    evaluator::evaluate,
+    evaluator::Evaluator,
     syntax::syntax_tree::SyntaxTree,
 };
 
 pub struct Compilation;
 
 impl Compilation {
-    pub fn evaluate(syntax_tree: SyntaxTree) -> EvaluationResult {
-        let mut binder = Binder::new(syntax_tree.diagnostic_bag);
+    pub fn evaluate(
+        syntax_tree: SyntaxTree,
+        variables: HashMap<String, Object>,
+    ) -> EvaluationResult {
+        let mut binder = Binder::new(variables.clone(), syntax_tree.diagnostic_bag);
         let bound_expression = binder.bind(syntax_tree.root);
-        let value = evaluate(bound_expression);
+        let mut evaluator = Evaluator::new(bound_expression, variables.clone());
+        let value = evaluator.evaluate();
         EvaluationResult {
             diagnostic_bag: binder.diagnostic_bag,
             value,
+            variables: evaluator.variables,
         }
     }
 }
@@ -22,4 +29,5 @@ impl Compilation {
 pub struct EvaluationResult {
     pub diagnostic_bag: DiagnosticBag,
     pub value: Object,
+    pub variables: HashMap<String, Object>,
 }

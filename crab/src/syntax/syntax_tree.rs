@@ -21,9 +21,11 @@ impl SyntaxTree {
 #[derive(Debug)]
 pub enum Expression {
     Literal(LiteralExpression),
+    Name(NameExpression),
     Parenthesized(ParenthesizedExpression),
     Unary(UnaryExpression),
     Binary(BinaryExpression),
+    Assignment(AssignmentExpression),
 }
 
 #[derive(Debug)]
@@ -34,6 +36,17 @@ pub struct LiteralExpression {
 impl LiteralExpression {
     pub(super) fn new(value: Object) -> Self {
         Self { value }
+    }
+}
+
+#[derive(Debug)]
+pub struct NameExpression {
+    pub(crate) identifier: Token,
+}
+
+impl NameExpression {
+    pub(super) fn new(identifier: Token) -> Self {
+        Self { identifier }
     }
 }
 
@@ -78,6 +91,23 @@ impl BinaryExpression {
             left: Box::new(left),
             operator,
             right: Box::new(right),
+        }
+    }
+}
+
+#[derive(Debug)]
+pub struct AssignmentExpression {
+    pub(crate) identifier: Token,
+    pub(crate) equal: Token,
+    pub(crate) expression: Box<Expression>,
+}
+
+impl AssignmentExpression {
+    pub(super) fn new(identifier: Token, equal: Token, expression: Expression) -> Self {
+        Self {
+            identifier,
+            equal,
+            expression: Box::new(expression),
         }
     }
 }

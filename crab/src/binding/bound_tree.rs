@@ -3,7 +3,7 @@ use crate::{
     syntax::token::TokenKind,
 };
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub(crate) enum BoundBinaryOperationKind {
     Addition,
     Subtraction,
@@ -17,14 +17,14 @@ pub(crate) enum BoundBinaryOperationKind {
     Equal,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub(crate) enum BoundUnaryOperationKind {
     Identity,
     Negation,
     LogicalNegation,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub(crate) struct BoundUnaryOperator {
     pub(super) operator_kind: TokenKind,
     pub(crate) operation_kind: BoundUnaryOperationKind,
@@ -77,7 +77,7 @@ impl BoundUnaryOperator {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub(crate) struct BoundBinaryOperator {
     pub(super) operator_kind: TokenKind,
     pub(crate) operation_kind: BoundBinaryOperationKind,
@@ -192,24 +192,28 @@ impl BoundBinaryOperator {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub(crate) enum BoundExpression {
     Literal(BoundLiteralExpression),
+    Variable(BoundVariableExpression),
     Unary(BoundUnaryExpression),
     Binary(BoundBinaryExpression),
+    Assignment(BoundAssignmentExpression),
 }
 
 impl BoundExpression {
     pub(crate) fn get_type(&self) -> Type {
         match self {
             BoundExpression::Literal(expression) => expression.get_type(),
+            BoundExpression::Variable(expression) => expression.get_type(),
             BoundExpression::Unary(expression) => expression.get_type(),
             BoundExpression::Binary(expression) => expression.get_type(),
+            BoundExpression::Assignment(expression) => expression.get_type(),
         }
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub(crate) struct BoundLiteralExpression {
     pub(crate) value: Object,
 }
@@ -224,7 +228,23 @@ impl BoundLiteralExpression {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
+pub(crate) struct BoundVariableExpression {
+    pub(crate) name: String,
+    pub(crate) _type: Type,
+}
+
+impl BoundVariableExpression {
+    pub(super) fn new(name: String, _type: Type) -> Self {
+        Self { name, _type }
+    }
+
+    fn get_type(&self) -> Type {
+        self._type.clone()
+    }
+}
+
+#[derive(Debug, Clone)]
 pub(crate) struct BoundUnaryExpression {
     pub(crate) operator: BoundUnaryOperator,
     pub(crate) right: Box<BoundExpression>,
@@ -243,7 +263,7 @@ impl BoundUnaryExpression {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub(crate) struct BoundBinaryExpression {
     pub(crate) left: Box<BoundExpression>,
     pub(crate) operator: BoundBinaryOperator,
@@ -265,5 +285,24 @@ impl BoundBinaryExpression {
 
     fn get_type(&self) -> Type {
         self.operator.result_type.clone()
+    }
+}
+
+#[derive(Debug, Clone)]
+pub(crate) struct BoundAssignmentExpression {
+    pub(crate) name: String,
+    pub(crate) expression: Box<BoundExpression>,
+}
+
+impl BoundAssignmentExpression {
+    pub(crate) fn new(name: String, expression: BoundExpression) -> Self {
+        Self {
+            name,
+            expression: Box::new(expression),
+        }
+    }
+
+    pub(crate) fn get_type(&self) -> Type {
+        self.expression.get_type()
     }
 }

@@ -5,7 +5,8 @@ use crate::common::{
 
 use super::{
     syntax_tree::{
-        BinaryExpression, Expression, LiteralExpression, ParenthesizedExpression, UnaryExpression,
+        AssignmentExpression, BinaryExpression, Expression, LiteralExpression, NameExpression,
+        ParenthesizedExpression, UnaryExpression,
     },
     token::{Token, TokenKind},
 };
@@ -32,7 +33,18 @@ impl Parser {
     }
 
     fn parse_expression(&mut self) -> Expression {
-        self.parse_or_expression()
+        self.parse_assignment_expression()
+    }
+
+    fn parse_assignment_expression(&mut self) -> Expression {
+        if self.peek(0).kind == TokenKind::Identifier && self.peek(1).kind == TokenKind::Equal {
+            let identifier = self.next_token();
+            let equal = self.next_token();
+            let expression = self.parse_assignment_expression();
+            Expression::Assignment(AssignmentExpression::new(identifier, equal, expression))
+        } else {
+            self.parse_or_expression()
+        }
     }
 
     fn parse_or_expression(&mut self) -> Expression {
@@ -107,6 +119,10 @@ impl Parser {
                 let token = self.next_token();
                 let value = token.lexeme.parse().unwrap();
                 Expression::Literal(LiteralExpression::new(Object::Boolean(value)))
+            }
+            TokenKind::Identifier => {
+                let identifier = self.next_token();
+                Expression::Name(NameExpression::new(identifier))
             }
             _ => {
                 let token = self.match_token(TokenKind::Number);

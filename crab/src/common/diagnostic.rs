@@ -63,10 +63,7 @@ impl DiagnosticBag {
     ) {
         self.diagnostics.push(Diagnostic::new(
             position,
-            format!(
-                "Unary operator '{}' is not defined for '{}'",
-                operator, right_type
-            ),
+            format!("Unary operator '{operator}' is not defined for '{right_type}'"),
         ))
     }
 
@@ -80,9 +77,15 @@ impl DiagnosticBag {
         self.diagnostics.push(Diagnostic::new(
             position,
             format!(
-                "Binary operator '{}' is not defined for '{}' and '{}'",
-                operator, left_type, right_type
+                "Binary operator '{operator}' is not defined for '{left_type}' and '{right_type}'",
             ),
+        ))
+    }
+
+    pub(crate) fn undefined_name(&mut self, position: Position, name: String) {
+        self.diagnostics.push(Diagnostic::new(
+            position,
+            format!("Name '{name}' is not defined"),
         ))
     }
 }
