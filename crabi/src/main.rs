@@ -2,7 +2,7 @@ use std::io::{stdin, stdout, Write};
 
 use colored::Colorize;
 
-use crabc::{compilation::Compilation, syntax::syntax_tree::SyntaxTree};
+use crab::{compilation::Compilation, syntax::syntax_tree::SyntaxTree};
 
 fn main() {
     let mut line = String::new();
