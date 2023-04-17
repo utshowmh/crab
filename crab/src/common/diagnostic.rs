@@ -39,7 +39,7 @@ impl DiagnosticBag {
     pub(crate) fn unexpected_character(&mut self, start: usize, char: char) {
         self.diagnostics.push(Diagnostic::new(
             Position::new(start, 1),
-            format!("Unexpected character '{char}"),
+            format!("Unexpected character '{char}'"),
         ));
     }
 

@@ -98,15 +98,15 @@ impl BinaryExpression {
 #[derive(Debug)]
 pub struct AssignmentExpression {
     pub(crate) identifier: Token,
-    pub(crate) equal: Token,
+    pub(crate) _equal: Token,
     pub(crate) expression: Box<Expression>,
 }
 
 impl AssignmentExpression {
-    pub(super) fn new(identifier: Token, equal: Token, expression: Expression) -> Self {
+    pub(super) fn new(identifier: Token, _equal: Token, expression: Expression) -> Self {
         Self {
             identifier,
-            equal,
+            _equal,
             expression: Box::new(expression),
         }
     }

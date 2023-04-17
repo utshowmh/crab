@@ -16,7 +16,7 @@ impl Compilation {
     ) -> EvaluationResult {
         let mut binder = Binder::new(variables.clone(), syntax_tree.diagnostic_bag);
         let bound_expression = binder.bind(syntax_tree.root);
-        let mut evaluator = Evaluator::new(bound_expression, variables.clone());
+        let mut evaluator = Evaluator::new(bound_expression, variables);
         let value = evaluator.evaluate();
         EvaluationResult {
             diagnostic_bag: binder.diagnostic_bag,

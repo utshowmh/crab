@@ -120,14 +120,14 @@ impl Parser {
                 let value = token.lexeme.parse().unwrap();
                 Expression::Literal(LiteralExpression::new(Object::Boolean(value)))
             }
-            TokenKind::Identifier => {
-                let identifier = self.next_token();
-                Expression::Name(NameExpression::new(identifier))
-            }
-            _ => {
-                let token = self.match_token(TokenKind::Number);
+            TokenKind::Number => {
+                let token = self.next_token();
                 let value = token.lexeme.parse().unwrap();
                 Expression::Literal(LiteralExpression::new(Object::Number(value)))
+            }
+            _ => {
+                let identifier = self.match_token(TokenKind::Identifier);
+                Expression::Name(NameExpression::new(identifier))
             }
         }
     }
@@ -153,7 +153,7 @@ impl Parser {
 
     fn match_token(&mut self, kind: TokenKind) -> Token {
         let token = self.peek(0);
-        if &kind == &token.kind {
+        if kind == token.kind {
             self.next_token()
         } else {
             self.diagnostic_bag
