@@ -137,7 +137,7 @@ impl Parser {
         if index < self.tokens.len() {
             self.tokens[index].clone()
         } else {
-            Token::new(TokenKind::Eof, "\0".to_string(), Position::new(0, 0))
+            Token::new(TokenKind::Eof, "\0".to_string(), Position::new(0, 0, 0))
         }
     }
 
@@ -158,7 +158,7 @@ impl Parser {
         } else {
             self.diagnostic_bag
                 .unexpected_token(token.position, kind.clone(), token.kind);
-            let token = Token::new(kind, "1".to_string(), self.peek(0).position);
+            let token = Token::new(kind, "__generated__".to_string(), self.peek(0).position);
             self.advance();
             token
         }

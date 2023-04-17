@@ -6,11 +6,12 @@ use super::types::Type;
 pub struct Position {
     pub start: usize,
     pub end: usize,
+    pub line: usize,
 }
 
 impl Position {
-    pub(crate) fn new(start: usize, end: usize) -> Self {
-        Self { start, end }
+    pub(crate) fn new(start: usize, end: usize, line: usize) -> Self {
+        Self { start, end, line }
     }
 }
 
@@ -36,9 +37,9 @@ impl DiagnosticBag {
         }
     }
 
-    pub(crate) fn unexpected_character(&mut self, start: usize, char: char) {
+    pub(crate) fn unexpected_character(&mut self, position: Position, char: char) {
         self.diagnostics.push(Diagnostic::new(
-            Position::new(start, 1),
+            position,
             format!("Unexpected character '{char}'"),
         ));
     }
