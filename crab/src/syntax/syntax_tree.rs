@@ -3,7 +3,7 @@ use crate::common::{diagnostic::DiagnosticBag, types::Object};
 use super::{lexer::Lexer, parser::Parser, token::Token};
 
 pub struct SyntaxTree {
-    pub root: Expression,
+    pub program: Vec<Statement>,
     pub(crate) diagnostic_bag: DiagnosticBag,
 }
 
@@ -12,9 +12,25 @@ impl SyntaxTree {
         let mut lexer = Lexer::new(source);
         let mut parser = Parser::new(lexer.lex(), lexer.diagnostic_bag);
         Self {
-            root: parser.parse(),
+            program: parser.parse(),
             diagnostic_bag: parser.diagnostic_bag,
         }
+    }
+}
+
+#[derive(Debug)]
+pub enum Statement {
+    Expression(ExpressionStatement),
+}
+
+#[derive(Debug)]
+pub struct ExpressionStatement {
+    pub(crate) expression: Expression,
+}
+
+impl ExpressionStatement {
+    pub(super) fn new(expression: Expression) -> Self {
+        Self { expression }
     }
 }
 

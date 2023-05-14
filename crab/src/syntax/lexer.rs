@@ -89,7 +89,7 @@ impl Lexer {
                     } else {
                         Token::new(
                             TokenKind::Equal,
-                            "&".to_string(),
+                            "=".to_string(),
                             Position::new(self.current - 1, self.current),
                         )
                     }

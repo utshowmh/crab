@@ -1,28 +1,40 @@
 use std::collections::HashMap;
 
 use crate::{
-    binding::bound_tree::{BoundBinaryOperationKind, BoundExpression, BoundUnaryOperationKind},
+    binding::bound_tree::{
+        BoundBinaryOperationKind, BoundExpression, BoundStatement, BoundUnaryOperationKind,
+    },
     common::types::Object,
 };
 
 pub(crate) struct Evaluator {
-    bound_expression: BoundExpression,
+    bound_statements: Vec<BoundStatement>,
     pub(super) variables: HashMap<String, Object>,
 }
 
 impl Evaluator {
     pub(crate) fn new(
-        bound_expression: BoundExpression,
+        bound_statements: Vec<BoundStatement>,
         variables: HashMap<String, Object>,
     ) -> Self {
         Self {
-            bound_expression,
+            bound_statements,
             variables,
         }
     }
 
-    pub(crate) fn evaluate(&mut self) -> Object {
-        self.evaluate_expression(&self.bound_expression.clone())
+    pub(crate) fn evaluate(&mut self) {
+        for statement in self.bound_statements.clone() {
+            self.evaluate_statement(statement)
+        }
+    }
+
+    fn evaluate_statement(&mut self, statement: BoundStatement) {
+        match statement {
+            BoundStatement::Expression(statement) => {
+                self.evaluate_expression(&statement.expression);
+            }
+        }
     }
 
     fn evaluate_expression(&mut self, bound_expression: &BoundExpression) -> Object {

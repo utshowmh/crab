@@ -5,8 +5,8 @@ use crate::common::{
 
 use super::{
     syntax_tree::{
-        AssignmentExpression, BinaryExpression, Expression, LiteralExpression, NameExpression,
-        ParenthesizedExpression, UnaryExpression,
+        AssignmentExpression, BinaryExpression, Expression, ExpressionStatement, LiteralExpression,
+        NameExpression, ParenthesizedExpression, Statement, UnaryExpression,
     },
     token::{Token, TokenKind},
 };
@@ -26,10 +26,15 @@ impl Parser {
         }
     }
 
-    pub(super) fn parse(&mut self) -> Expression {
-        let expression = self.parse_expression();
+    pub(super) fn parse(&mut self) -> Vec<Statement> {
+        let mut statements = vec![];
+        while self.peek(0).kind != TokenKind::Eof {
+            statements.push(Statement::Expression(ExpressionStatement::new(
+                self.parse_expression(),
+            )))
+        }
         self.match_token(TokenKind::Eof);
-        expression
+        statements
     }
 
     fn parse_expression(&mut self) -> Expression {

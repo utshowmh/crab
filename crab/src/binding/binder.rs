@@ -4,13 +4,14 @@ use crate::{
     common::{diagnostic::DiagnosticBag, types::Object},
     syntax::syntax_tree::{
         AssignmentExpression, BinaryExpression, Expression, LiteralExpression, NameExpression,
-        ParenthesizedExpression, UnaryExpression,
+        ParenthesizedExpression, Statement, UnaryExpression,
     },
 };
 
 use super::bound_tree::{
     BoundAssignmentExpression, BoundBinaryExpression, BoundBinaryOperator, BoundExpression,
-    BoundLiteralExpression, BoundUnaryExpression, BoundUnaryOperator, BoundVariableExpression,
+    BoundExpressionStatement, BoundLiteralExpression, BoundStatement, BoundUnaryExpression,
+    BoundUnaryOperator, BoundVariableExpression,
 };
 
 pub(crate) struct Binder {
@@ -26,12 +27,24 @@ impl Binder {
         }
     }
 
-    pub(crate) fn bind(&mut self, root: Expression) -> BoundExpression {
-        self.bind_expression(root)
+    pub(crate) fn bind(&mut self, program: Vec<Statement>) -> Vec<BoundStatement> {
+        let mut bound_statements = vec![];
+        for statement in program {
+            bound_statements.push(self.bind_statement(statement));
+        }
+        bound_statements
     }
 
-    fn bind_expression(&mut self, root: Expression) -> BoundExpression {
-        match root {
+    fn bind_statement(&mut self, statement: Statement) -> BoundStatement {
+        match statement {
+            Statement::Expression(statement) => BoundStatement::Expression(
+                BoundExpressionStatement::new(self.bind_expression(statement.expression)),
+            ),
+        }
+    }
+
+    fn bind_expression(&mut self, expression: Expression) -> BoundExpression {
+        match expression {
             Expression::Literal(expression) => self.bind_literal_expression(expression),
             Expression::Name(expression) => self.bind_name_expression(expression),
             Expression::Parenthesized(expression) => self.bind_parenthesized_expression(expression),
@@ -102,7 +115,7 @@ impl Binder {
     }
 
     fn bind_assignment_expression(&mut self, expression: AssignmentExpression) -> BoundExpression {
-        let bound_expression = self.bind(*expression.expression);
+        let bound_expression = self.bind_expression(*expression.expression);
         BoundExpression::Assignment(BoundAssignmentExpression::new(
             expression.identifier.lexeme,
             bound_expression,

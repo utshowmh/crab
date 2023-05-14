@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use crate::{
-    binding::binder::Binder,
+    binding::{binder::Binder, bound_tree::BoundStatement},
     common::{diagnostic::DiagnosticBag, types::Object},
     evaluator::Evaluator,
     syntax::syntax_tree::SyntaxTree,
@@ -15,19 +15,19 @@ impl Compilation {
         variables: HashMap<String, Object>,
     ) -> EvaluationResult {
         let mut binder = Binder::new(variables.clone(), syntax_tree.diagnostic_bag);
-        let bound_expression = binder.bind(syntax_tree.root);
-        let mut evaluator = Evaluator::new(bound_expression, variables);
-        let value = evaluator.evaluate();
+        let bound_tree = binder.bind(syntax_tree.program);
+        let mut evaluator = Evaluator::new(bound_tree.clone(), variables);
+        evaluator.evaluate();
         EvaluationResult {
             diagnostic_bag: binder.diagnostic_bag,
-            value,
             variables: evaluator.variables,
+            bound_tree,
         }
     }
 }
 
 pub struct EvaluationResult {
     pub diagnostic_bag: DiagnosticBag,
-    pub value: Object,
     pub variables: HashMap<String, Object>,
+    pub bound_tree: Vec<BoundStatement>,
 }

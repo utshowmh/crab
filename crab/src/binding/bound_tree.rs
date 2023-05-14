@@ -306,3 +306,19 @@ impl BoundAssignmentExpression {
         self.expression.get_type()
     }
 }
+
+#[derive(Debug, Clone)]
+pub enum BoundStatement {
+    Expression(BoundExpressionStatement),
+}
+
+#[derive(Debug, Clone)]
+pub struct BoundExpressionStatement {
+    pub(crate) expression: BoundExpression,
+}
+
+impl BoundExpressionStatement {
+    pub(crate) fn new(expression: BoundExpression) -> Self {
+        Self { expression }
+    }
+}
