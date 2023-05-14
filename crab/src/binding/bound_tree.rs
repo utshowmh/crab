@@ -231,16 +231,16 @@ impl BoundLiteralExpression {
 #[derive(Debug, Clone)]
 pub(crate) struct BoundVariableExpression {
     pub(crate) name: String,
-    pub(crate) _type: Type,
+    pub(crate) value_type: Type,
 }
 
 impl BoundVariableExpression {
-    pub(super) fn new(name: String, _type: Type) -> Self {
-        Self { name, _type }
+    pub(super) fn new(name: String, value_type: Type) -> Self {
+        Self { name, value_type }
     }
 
     fn get_type(&self) -> Type {
-        self._type.clone()
+        self.value_type.clone()
     }
 }
 

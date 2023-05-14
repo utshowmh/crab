@@ -6,12 +6,25 @@ use super::types::Type;
 pub struct Position {
     pub start: usize,
     pub end: usize,
-    pub line: usize,
 }
 
 impl Position {
-    pub(crate) fn new(start: usize, end: usize, line: usize) -> Self {
-        Self { start, end, line }
+    pub(crate) fn new(start: usize, end: usize) -> Self {
+        Self { start, end }
+    }
+
+    pub fn get_line_and_column(&self, source: &str) -> (usize, usize) {
+        let mut line = 1;
+        let mut column = 0;
+        for char in source.chars() {
+            if char == '\n' {
+                line += 1;
+                column = 0;
+            } else {
+                column += 1;
+            }
+        }
+        (line, column)
     }
 }
 

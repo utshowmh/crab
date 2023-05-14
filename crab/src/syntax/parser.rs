@@ -137,7 +137,7 @@ impl Parser {
         if index < self.tokens.len() {
             self.tokens[index].clone()
         } else {
-            Token::new(TokenKind::Eof, "\0".to_string(), Position::new(0, 0, 0))
+            Token::new(TokenKind::Eof, "\0".to_string(), Position::new(0, 0))
         }
     }
 

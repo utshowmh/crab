@@ -5,7 +5,6 @@ use super::token::{Token, TokenKind};
 pub(super) struct Lexer {
     source: Vec<char>,
     current: usize,
-    line: usize,
     pub(super) diagnostic_bag: DiagnosticBag,
 }
 
@@ -14,7 +13,6 @@ impl Lexer {
         Self {
             source: source.chars().collect(),
             current: 0,
-            line: 0,
             diagnostic_bag: DiagnosticBag::new(),
         }
     }
@@ -40,29 +38,29 @@ impl Lexer {
             Token::new(
                 TokenKind::Eof,
                 "\0".to_string(),
-                Position::new(self.current - 1, self.current, self.line),
+                Position::new(self.current - 1, self.current),
             )
         } else {
             match self.next_char() {
                 '+' => Token::new(
                     TokenKind::Plus,
                     "+".to_string(),
-                    Position::new(self.current - 1, self.current, self.line),
+                    Position::new(self.current - 1, self.current),
                 ),
                 '-' => Token::new(
                     TokenKind::Minus,
                     "-".to_string(),
-                    Position::new(self.current - 1, self.current, self.line),
+                    Position::new(self.current - 1, self.current),
                 ),
                 '*' => Token::new(
                     TokenKind::Star,
                     "*".to_string(),
-                    Position::new(self.current - 1, self.current, self.line),
+                    Position::new(self.current - 1, self.current),
                 ),
                 '/' => Token::new(
                     TokenKind::Slash,
                     "/".to_string(),
-                    Position::new(self.current - 1, self.current, self.line),
+                    Position::new(self.current - 1, self.current),
                 ),
                 '!' => {
                     if self.peek(0) == '=' {
@@ -70,13 +68,13 @@ impl Lexer {
                         Token::new(
                             TokenKind::BangEqual,
                             "!=".to_string(),
-                            Position::new(self.current - 2, self.current, self.line),
+                            Position::new(self.current - 2, self.current),
                         )
                     } else {
                         Token::new(
                             TokenKind::Bang,
                             "!".to_string(),
-                            Position::new(self.current - 1, self.current, self.line),
+                            Position::new(self.current - 1, self.current),
                         )
                     }
                 }
@@ -86,13 +84,13 @@ impl Lexer {
                         Token::new(
                             TokenKind::EqualEqual,
                             "==".to_string(),
-                            Position::new(self.current - 2, self.current, self.line),
+                            Position::new(self.current - 2, self.current),
                         )
                     } else {
                         Token::new(
                             TokenKind::Equal,
                             "&".to_string(),
-                            Position::new(self.current - 1, self.current, self.line),
+                            Position::new(self.current - 1, self.current),
                         )
                     }
                 }
@@ -102,13 +100,13 @@ impl Lexer {
                         Token::new(
                             TokenKind::AmpersandAmpersand,
                             "&&".to_string(),
-                            Position::new(self.current - 2, self.current, self.line),
+                            Position::new(self.current - 2, self.current),
                         )
                     } else {
                         Token::new(
                             TokenKind::Ampersand,
                             "&".to_string(),
-                            Position::new(self.current - 1, self.current, self.line),
+                            Position::new(self.current - 1, self.current),
                         )
                     }
                 }
@@ -118,13 +116,13 @@ impl Lexer {
                         Token::new(
                             TokenKind::PipePipe,
                             "||".to_string(),
-                            Position::new(self.current - 2, self.current, self.line),
+                            Position::new(self.current - 2, self.current),
                         )
                     } else {
                         Token::new(
                             TokenKind::Pipe,
                             "|".to_string(),
-                            Position::new(self.current - 1, self.current, self.line),
+                            Position::new(self.current - 1, self.current),
                         )
                     }
                 }
@@ -132,30 +130,24 @@ impl Lexer {
                 '(' => Token::new(
                     TokenKind::OpenParen,
                     "(".to_string(),
-                    Position::new(self.current - 1, self.current, self.line),
+                    Position::new(self.current - 1, self.current),
                 ),
                 ')' => Token::new(
                     TokenKind::CloseParen,
                     ")".to_string(),
-                    Position::new(self.current - 1, self.current, self.line),
+                    Position::new(self.current - 1, self.current),
                 ),
 
                 char => {
                     if char.is_ascii_whitespace() {
-                        if char == '\n' {
-                            self.line += 1;
-                        }
                         let start = self.current - 1;
                         while self.peek(0).is_ascii_whitespace() {
-                            if self.peek(0) == '\n' {
-                                self.line += 1;
-                            }
                             self.advance();
                         }
                         Token::new(
                             TokenKind::Whitespace,
                             self.source[start..self.current].iter().collect(),
-                            Position::new(start, self.current, self.line),
+                            Position::new(start, self.current),
                         )
                     } else if char.is_ascii_digit() {
                         let start = self.current - 1;
@@ -165,7 +157,7 @@ impl Lexer {
                         Token::new(
                             TokenKind::Number,
                             self.source[start..self.current].iter().collect(),
-                            Position::new(start, self.current, self.line),
+                            Position::new(start, self.current),
                         )
                     } else if char.is_ascii_alphabetic() {
                         let start = self.current - 1;
@@ -174,16 +166,16 @@ impl Lexer {
                         }
                         let lexeme = self.source[start..self.current].iter().collect::<String>();
                         let kind = TokenKind::get_lexeme_type(&lexeme);
-                        Token::new(kind, lexeme, Position::new(start, self.current, self.line))
+                        Token::new(kind, lexeme, Position::new(start, self.current))
                     } else {
                         self.diagnostic_bag.unexpected_character(
-                            Position::new(self.current - 1, self.current, self.line),
+                            Position::new(self.current - 1, self.current),
                             char,
                         );
                         Token::new(
                             TokenKind::Invalid,
                             char.to_string(),
-                            Position::new(self.current - 1, self.current, self.line),
+                            Position::new(self.current - 1, self.current),
                         )
                     }
                 }
