@@ -34,6 +34,9 @@ impl Evaluator {
             BoundStatement::Expression(statement) => {
                 self.evaluate_expression(&statement.expression);
             }
+            BoundStatement::Print(statement) => {
+                println!("{}", self.evaluate_expression(&statement.expression));
+            }
         }
     }
 

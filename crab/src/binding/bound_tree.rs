@@ -310,6 +310,7 @@ impl BoundAssignmentExpression {
 #[derive(Debug, Clone)]
 pub enum BoundStatement {
     Expression(BoundExpressionStatement),
+    Print(BoundPrintStatement),
 }
 
 #[derive(Debug, Clone)]
@@ -318,6 +319,17 @@ pub struct BoundExpressionStatement {
 }
 
 impl BoundExpressionStatement {
+    pub(crate) fn new(expression: BoundExpression) -> Self {
+        Self { expression }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct BoundPrintStatement {
+    pub(crate) expression: BoundExpression,
+}
+
+impl BoundPrintStatement {
     pub(crate) fn new(expression: BoundExpression) -> Self {
         Self { expression }
     }

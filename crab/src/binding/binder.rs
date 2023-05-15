@@ -10,8 +10,8 @@ use crate::{
 
 use super::bound_tree::{
     BoundAssignmentExpression, BoundBinaryExpression, BoundBinaryOperator, BoundExpression,
-    BoundExpressionStatement, BoundLiteralExpression, BoundStatement, BoundUnaryExpression,
-    BoundUnaryOperator, BoundVariableExpression,
+    BoundExpressionStatement, BoundLiteralExpression, BoundPrintStatement, BoundStatement,
+    BoundUnaryExpression, BoundUnaryOperator, BoundVariableExpression,
 };
 
 pub(crate) struct Binder {
@@ -43,6 +43,9 @@ impl Binder {
             Statement::Expression(statement) => BoundStatement::Expression(
                 BoundExpressionStatement::new(self.bind_expression(statement.expression)),
             ),
+            Statement::Print(statement) => BoundStatement::Print(BoundPrintStatement::new(
+                self.bind_expression(statement.expression),
+            )),
         }
     }
 

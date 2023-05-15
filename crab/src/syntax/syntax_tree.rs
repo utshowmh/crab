@@ -3,22 +3,6 @@ use crate::common::types::Object;
 use super::token::Token;
 
 #[derive(Debug, Clone)]
-pub enum Statement {
-    Expression(ExpressionStatement),
-}
-
-#[derive(Debug, Clone)]
-pub struct ExpressionStatement {
-    pub(crate) expression: Expression,
-}
-
-impl ExpressionStatement {
-    pub(super) fn new(expression: Expression) -> Self {
-        Self { expression }
-    }
-}
-
-#[derive(Debug, Clone)]
 pub enum Expression {
     Literal(LiteralExpression),
     Name(NameExpression),
@@ -109,5 +93,33 @@ impl AssignmentExpression {
             _equal,
             expression: Box::new(expression),
         }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub enum Statement {
+    Expression(ExpressionStatement),
+    Print(PrintStatement),
+}
+
+#[derive(Debug, Clone)]
+pub struct ExpressionStatement {
+    pub(crate) expression: Expression,
+}
+
+impl ExpressionStatement {
+    pub(super) fn new(expression: Expression) -> Self {
+        Self { expression }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct PrintStatement {
+    pub(crate) expression: Expression,
+}
+
+impl PrintStatement {
+    pub(super) fn new(expression: Expression) -> Self {
+        Self { expression }
     }
 }

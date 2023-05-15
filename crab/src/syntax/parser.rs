@@ -8,7 +8,7 @@ use crate::common::{
 use super::{
     syntax_tree::{
         AssignmentExpression, BinaryExpression, Expression, ExpressionStatement, LiteralExpression,
-        NameExpression, ParenthesizedExpression, Statement, UnaryExpression,
+        NameExpression, ParenthesizedExpression, PrintStatement, Statement, UnaryExpression,
     },
     token::{Token, TokenKind},
 };
@@ -31,12 +31,20 @@ impl Parser {
     pub(crate) fn parse(&mut self) -> Vec<Statement> {
         let mut statements = vec![];
         while self.peek(0).kind != TokenKind::Eof {
-            statements.push(Statement::Expression(ExpressionStatement::new(
-                self.parse_expression(),
-            )))
+            statements.push(self.parse_statement());
         }
         self.match_token(TokenKind::Eof);
         statements
+    }
+
+    fn parse_statement(&mut self) -> Statement {
+        match self.peek(0).kind {
+            TokenKind::Print => {
+                self.advance();
+                Statement::Print(PrintStatement::new(self.parse_expression()))
+            }
+            _ => Statement::Expression(ExpressionStatement::new(self.parse_expression())),
+        }
     }
 
     fn parse_expression(&mut self) -> Expression {
@@ -144,7 +152,7 @@ impl Parser {
         if index < self.tokens.len() {
             self.tokens[index].clone()
         } else {
-            Token::new(TokenKind::Eof, "\0".to_string(), Position::new(0, 0))
+            Token::new(TokenKind::Eof, "EOF".to_string(), Position::new(0, 0))
         }
     }
 
@@ -168,7 +176,7 @@ impl Parser {
                 kind.clone(),
                 token.kind,
             );
-            let token = Token::new(kind, "__generated__".to_string(), self.peek(0).position);
+            let token = Token::new(kind, "GENERATED".to_string(), self.peek(0).position);
             self.advance();
             token
         }

@@ -27,6 +27,8 @@ pub(crate) enum TokenKind {
     False,
     Identifier,
 
+    Print,
+
     Whitespace,
 
     Invalid,
@@ -38,6 +40,7 @@ impl TokenKind {
         match lexeme {
             "true" => TokenKind::True,
             "false" => TokenKind::False,
+            "print" => TokenKind::Print,
             _ => TokenKind::Identifier,
         }
     }
@@ -63,16 +66,18 @@ impl Display for TokenKind {
             TokenKind::OpenParen => write!(f, "("),
             TokenKind::CloseParen => write!(f, ")"),
 
-            TokenKind::Number => write!(f, "{self:?}"),
+            TokenKind::Number => write!(f, "NUMBER"),
 
             TokenKind::True => write!(f, "true"),
             TokenKind::False => write!(f, "false"),
-            TokenKind::Identifier => write!(f, "{self:?}"),
+            TokenKind::Identifier => write!(f, "IDENTIFIER"),
 
-            TokenKind::Whitespace => write!(f, "{self:?}"),
+            TokenKind::Print => write!(f, "print"),
 
-            TokenKind::Invalid => write!(f, "{self:?}"),
-            TokenKind::Eof => write!(f, "{self:?}"),
+            TokenKind::Whitespace => write!(f, "WHITESPACE"),
+
+            TokenKind::Invalid => write!(f, "INVALID"),
+            TokenKind::Eof => write!(f, "EOF"),
         }
     }
 }
