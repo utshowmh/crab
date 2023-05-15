@@ -1,4 +1,4 @@
-use std::{cell::RefCell, collections::HashMap, rc::Rc};
+use std::{cell::RefCell, rc::Rc};
 
 use crate::{
     common::{diagnostic::DiagnosticBag, types::Object},
@@ -8,24 +8,27 @@ use crate::{
     },
 };
 
-use super::bound_tree::{
-    BoundAssignmentExpression, BoundBinaryExpression, BoundBinaryOperator, BoundExpression,
-    BoundExpressionStatement, BoundLiteralExpression, BoundPrintStatement, BoundStatement,
-    BoundUnaryExpression, BoundUnaryOperator, BoundVariableExpression,
+use super::{
+    bindings::Bindings,
+    bound_tree::{
+        BoundAssignmentExpression, BoundBinaryExpression, BoundBinaryOperator, BoundExpression,
+        BoundExpressionStatement, BoundLiteralExpression, BoundPrintStatement, BoundStatement,
+        BoundUnaryExpression, BoundUnaryOperator, BoundVariableExpression,
+    },
 };
 
 pub(crate) struct Binder {
-    variables: HashMap<String, Object>,
+    bindings: Rc<RefCell<Bindings>>,
     pub(crate) diagnostic_bag: Rc<RefCell<DiagnosticBag>>,
 }
 
 impl Binder {
     pub(crate) fn new(
-        variables: HashMap<String, Object>,
+        bindings: Rc<RefCell<Bindings>>,
         diagnostic_bag: Rc<RefCell<DiagnosticBag>>,
     ) -> Self {
         Self {
-            variables,
+            bindings,
             diagnostic_bag,
         }
     }
@@ -65,7 +68,7 @@ impl Binder {
     }
 
     fn bind_name_expression(&mut self, expression: NameExpression) -> BoundExpression {
-        if let Some(value) = self.variables.get(&expression.identifier.lexeme) {
+        if let Some(value) = self.bindings.borrow().get(&expression.identifier.lexeme) {
             BoundExpression::Variable(BoundVariableExpression::new(
                 expression.identifier.lexeme.clone(),
                 value.get_type(),

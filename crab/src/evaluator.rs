@@ -1,25 +1,28 @@
-use std::collections::HashMap;
+use std::{cell::RefCell, rc::Rc};
 
 use crate::{
-    binding::bound_tree::{
-        BoundBinaryOperationKind, BoundExpression, BoundStatement, BoundUnaryOperationKind,
+    binding::{
+        bindings::Bindings,
+        bound_tree::{
+            BoundBinaryOperationKind, BoundExpression, BoundStatement, BoundUnaryOperationKind,
+        },
     },
     common::types::Object,
 };
 
 pub(crate) struct Evaluator {
     bound_statements: Vec<BoundStatement>,
-    pub(super) variables: HashMap<String, Object>,
+    pub(super) bindings: Rc<RefCell<Bindings>>,
 }
 
 impl Evaluator {
     pub(crate) fn new(
         bound_statements: Vec<BoundStatement>,
-        variables: HashMap<String, Object>,
+        bindings: Rc<RefCell<Bindings>>,
     ) -> Self {
         Self {
             bound_statements,
-            variables,
+            bindings,
         }
     }
 
@@ -45,7 +48,7 @@ impl Evaluator {
             BoundExpression::Literal(expression) => expression.value.clone(),
 
             BoundExpression::Variable(expression) => {
-                self.variables.get(&expression.name).unwrap().clone()
+                self.bindings.borrow().get(&expression.name).unwrap()
             }
 
             BoundExpression::Unary(expression) => {
@@ -89,10 +92,11 @@ impl Evaluator {
             }
 
             BoundExpression::Assignment(expression) => {
-                let value = self.evaluate_expression(&expression.expression);
-                self.variables
-                    .insert(expression.name.clone(), value.clone());
-                value
+                let object = self.evaluate_expression(&expression.expression);
+                self.bindings
+                    .borrow_mut()
+                    .set(expression.name.clone(), object.clone());
+                object
             }
         }
     }

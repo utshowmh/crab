@@ -1,15 +1,16 @@
 use std::{
-    collections::HashMap,
+    cell::RefCell,
     io::{stdin, stdout, Write},
+    rc::Rc,
 };
 
 use colored::Colorize;
 
-use crab::compilation::Compilation;
+use crab::{binding::bindings::Bindings, compilation::Compilation};
 
 fn main() {
     let mut source = String::new();
-    let mut variables = HashMap::new();
+    let mut bindings = Rc::new(RefCell::new(Bindings::new()));
     let mut show_syntax_tree = false;
     let mut show_bound_tree = false;
 
@@ -25,7 +26,7 @@ fn main() {
 
             source => {
                 if !source.is_empty() {
-                    let compilation_result = Compilation::evaluate(source, variables.clone());
+                    let compilation_result = Compilation::evaluate(source, Rc::clone(&bindings));
 
                     if show_syntax_tree {
                         println!(
@@ -63,7 +64,7 @@ fn main() {
                         eprintln!("{}", " --- near here".truecolor(255, 255, 0));
                     }
 
-                    variables = compilation_result.variables;
+                    bindings = compilation_result.bindings;
                 }
             }
         };
