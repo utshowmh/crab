@@ -5,7 +5,7 @@ use std::{
 
 use colored::Colorize;
 
-use crab::{compilation::Compilation, syntax::syntax_tree::SyntaxTree};
+use crab::compilation::Compilation;
 
 fn main() {
     let mut source = String::new();
@@ -25,25 +25,24 @@ fn main() {
 
             source => {
                 if !source.is_empty() {
-                    let syntax_tree = SyntaxTree::new(source);
+                    let compilation_result = Compilation::evaluate(source, variables.clone());
 
                     if show_syntax_tree {
                         println!(
                             "{}",
-                            format!("{:#?}", syntax_tree.program).truecolor(155, 155, 155)
+                            format!("{:#?}", compilation_result.program).truecolor(155, 155, 155)
                         );
                     }
 
                     if show_bound_tree {
                         println!(
                             "{}",
-                            format!("{:#?}", syntax_tree.program).truecolor(155, 155, 155)
+                            format!("{:#?}", compilation_result.bound_program)
+                                .truecolor(155, 155, 155)
                         );
                     }
 
-                    let evaluation_result = Compilation::evaluate(syntax_tree, variables.clone());
-
-                    for diagnostic in evaluation_result.diagnostic_bag.diagnostics {
+                    for diagnostic in &compilation_result.diagnostic_bag.borrow().diagnostics {
                         let (line, column) = diagnostic.position.get_line_and_column(&source);
                         eprintln!(
                             "{}",
@@ -64,7 +63,7 @@ fn main() {
                         eprintln!("{}", " --- near here".truecolor(255, 255, 0));
                     }
 
-                    variables = evaluation_result.variables;
+                    variables = compilation_result.variables;
                 }
             }
         };

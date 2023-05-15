@@ -1,23 +1,25 @@
+use std::{cell::RefCell, rc::Rc};
+
 use crate::common::diagnostic::{DiagnosticBag, Position};
 
 use super::token::{Token, TokenKind};
 
-pub(super) struct Lexer {
+pub(crate) struct Lexer {
     source: Vec<char>,
     current: usize,
-    pub(super) diagnostic_bag: DiagnosticBag,
+    pub(crate) diagnostic_bag: Rc<RefCell<DiagnosticBag>>,
 }
 
 impl Lexer {
-    pub(super) fn new(source: &str) -> Self {
+    pub(crate) fn new(source: &str, diagnostic_bag: Rc<RefCell<DiagnosticBag>>) -> Self {
         Self {
             source: source.chars().collect(),
             current: 0,
-            diagnostic_bag: DiagnosticBag::new(),
+            diagnostic_bag,
         }
     }
 
-    pub(super) fn lex(&mut self) -> Vec<Token> {
+    pub(crate) fn lex(&mut self) -> Vec<Token> {
         let mut tokens = Vec::new();
         loop {
             let token = self.next_token();
@@ -168,7 +170,7 @@ impl Lexer {
                         let kind = TokenKind::get_lexeme_type(&lexeme);
                         Token::new(kind, lexeme, Position::new(start, self.current))
                     } else {
-                        self.diagnostic_bag.unexpected_character(
+                        self.diagnostic_bag.borrow_mut().unexpected_character(
                             Position::new(self.current - 1, self.current),
                             char,
                         );

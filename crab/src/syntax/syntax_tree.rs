@@ -1,29 +1,13 @@
-use crate::common::{diagnostic::DiagnosticBag, types::Object};
+use crate::common::types::Object;
 
-use super::{lexer::Lexer, parser::Parser, token::Token};
+use super::token::Token;
 
-pub struct SyntaxTree {
-    pub program: Vec<Statement>,
-    pub(crate) diagnostic_bag: DiagnosticBag,
-}
-
-impl SyntaxTree {
-    pub fn new(source: &str) -> Self {
-        let mut lexer = Lexer::new(source);
-        let mut parser = Parser::new(lexer.lex(), lexer.diagnostic_bag);
-        Self {
-            program: parser.parse(),
-            diagnostic_bag: parser.diagnostic_bag,
-        }
-    }
-}
-
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Statement {
     Expression(ExpressionStatement),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ExpressionStatement {
     pub(crate) expression: Expression,
 }
@@ -34,7 +18,7 @@ impl ExpressionStatement {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Expression {
     Literal(LiteralExpression),
     Name(NameExpression),
@@ -44,7 +28,7 @@ pub enum Expression {
     Assignment(AssignmentExpression),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct LiteralExpression {
     pub(crate) value: Object,
 }
@@ -55,7 +39,7 @@ impl LiteralExpression {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct NameExpression {
     pub(crate) identifier: Token,
 }
@@ -66,7 +50,7 @@ impl NameExpression {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ParenthesizedExpression {
     pub(crate) expression: Box<Expression>,
 }
@@ -79,7 +63,7 @@ impl ParenthesizedExpression {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct UnaryExpression {
     pub(crate) operator: Token,
     pub(crate) right: Box<Expression>,
@@ -94,7 +78,7 @@ impl UnaryExpression {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct BinaryExpression {
     pub(crate) left: Box<Expression>,
     pub(crate) operator: Token,
@@ -111,7 +95,7 @@ impl BinaryExpression {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct AssignmentExpression {
     pub(crate) identifier: Token,
     pub(crate) _equal: Token,

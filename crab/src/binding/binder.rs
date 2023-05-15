@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
 use crate::{
     common::{diagnostic::DiagnosticBag, types::Object},
@@ -16,11 +16,14 @@ use super::bound_tree::{
 
 pub(crate) struct Binder {
     variables: HashMap<String, Object>,
-    pub(crate) diagnostic_bag: DiagnosticBag,
+    pub(crate) diagnostic_bag: Rc<RefCell<DiagnosticBag>>,
 }
 
 impl Binder {
-    pub(crate) fn new(variables: HashMap<String, Object>, diagnostic_bag: DiagnosticBag) -> Self {
+    pub(crate) fn new(
+        variables: HashMap<String, Object>,
+        diagnostic_bag: Rc<RefCell<DiagnosticBag>>,
+    ) -> Self {
         Self {
             variables,
             diagnostic_bag,
@@ -66,6 +69,7 @@ impl Binder {
             ))
         } else {
             self.diagnostic_bag
+                .borrow_mut()
                 .undefined_name(expression.identifier.position, expression.identifier.lexeme);
             BoundExpression::Literal(BoundLiteralExpression::new(Object::Number(0)))
         }
@@ -85,7 +89,7 @@ impl Binder {
         {
             BoundExpression::Unary(BoundUnaryExpression::new(operator, right))
         } else {
-            self.diagnostic_bag.invalid_unary_operator(
+            self.diagnostic_bag.borrow_mut().invalid_unary_operator(
                 expression.operator.position,
                 expression.operator.kind,
                 right.get_type(),
@@ -104,7 +108,7 @@ impl Binder {
         ) {
             BoundExpression::Binary(BoundBinaryExpression::new(left, operator, right))
         } else {
-            self.diagnostic_bag.invalid_binary_operator(
+            self.diagnostic_bag.borrow_mut().invalid_binary_operator(
                 expression.operator.position,
                 expression.operator.kind,
                 left.get_type(),

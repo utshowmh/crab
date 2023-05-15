@@ -1,3 +1,5 @@
+use std::{cell::RefCell, rc::Rc};
+
 use crate::common::{
     diagnostic::{DiagnosticBag, Position},
     types::Object,
@@ -11,14 +13,14 @@ use super::{
     token::{Token, TokenKind},
 };
 
-pub(super) struct Parser {
+pub(crate) struct Parser {
     tokens: Vec<Token>,
     current: usize,
-    pub(super) diagnostic_bag: DiagnosticBag,
+    pub(super) diagnostic_bag: Rc<RefCell<DiagnosticBag>>,
 }
 
 impl Parser {
-    pub(super) fn new(tokens: Vec<Token>, diagnostic_bag: DiagnosticBag) -> Self {
+    pub(crate) fn new(tokens: Vec<Token>, diagnostic_bag: Rc<RefCell<DiagnosticBag>>) -> Self {
         Self {
             tokens,
             current: 0,
@@ -26,7 +28,7 @@ impl Parser {
         }
     }
 
-    pub(super) fn parse(&mut self) -> Vec<Statement> {
+    pub(crate) fn parse(&mut self) -> Vec<Statement> {
         let mut statements = vec![];
         while self.peek(0).kind != TokenKind::Eof {
             statements.push(Statement::Expression(ExpressionStatement::new(
@@ -161,8 +163,11 @@ impl Parser {
         if kind == token.kind {
             self.next_token()
         } else {
-            self.diagnostic_bag
-                .unexpected_token(token.position, kind.clone(), token.kind);
+            self.diagnostic_bag.borrow_mut().unexpected_token(
+                token.position,
+                kind.clone(),
+                token.kind,
+            );
             let token = Token::new(kind, "__generated__".to_string(), self.peek(0).position);
             self.advance();
             token
