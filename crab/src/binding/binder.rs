@@ -77,7 +77,7 @@ impl Binder {
             self.diagnostic_bag
                 .borrow_mut()
                 .undefined_name(expression.identifier.position, expression.identifier.lexeme);
-            BoundExpression::Literal(BoundLiteralExpression::new(Object::Number(0)))
+            BoundExpression::Literal(BoundLiteralExpression::new(Object::Unit))
         }
     }
 
@@ -100,7 +100,7 @@ impl Binder {
                 expression.operator.kind,
                 right.get_type(),
             );
-            right
+            BoundExpression::Literal(BoundLiteralExpression::new(Object::Unit))
         }
     }
 
@@ -120,7 +120,7 @@ impl Binder {
                 left.get_type(),
                 right.get_type(),
             );
-            left
+            BoundExpression::Literal(BoundLiteralExpression::new(Object::Unit))
         }
     }
 

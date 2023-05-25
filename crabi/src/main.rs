@@ -28,6 +28,19 @@ fn main() {
                 if !source.is_empty() {
                     let compilation_result = Compilation::evaluate(source, Rc::clone(&bindings));
 
+                    if compilation_result
+                        .diagnostic_bag
+                        .borrow()
+                        .diagnostics
+                        .is_empty()
+                    {
+                        println!(
+                            "{}",
+                            format!("{}", compilation_result.evaluated_result)
+                                .truecolor(255, 255, 255)
+                        )
+                    }
+
                     if show_syntax_tree {
                         println!(
                             "{}",

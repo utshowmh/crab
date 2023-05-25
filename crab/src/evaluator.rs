@@ -26,19 +26,22 @@ impl Evaluator {
         }
     }
 
-    pub(crate) fn evaluate(&mut self) {
+    pub(crate) fn evaluate(&mut self) -> Object {
+        let mut object = Object::Unit;
         for statement in self.bound_statements.clone() {
-            self.evaluate_statement(statement)
+            object = self.evaluate_statement(statement);
         }
+        object
     }
 
-    fn evaluate_statement(&mut self, statement: BoundStatement) {
+    fn evaluate_statement(&mut self, statement: BoundStatement) -> Object {
         match statement {
             BoundStatement::Expression(statement) => {
-                self.evaluate_expression(&statement.expression);
+                self.evaluate_expression(&statement.expression)
             }
             BoundStatement::Print(statement) => {
                 println!("{}", self.evaluate_expression(&statement.expression));
+                Object::Unit
             }
         }
     }

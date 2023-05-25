@@ -5,6 +5,7 @@ type Boolean = bool;
 
 #[derive(Debug, PartialEq, Clone)]
 pub(crate) enum Type {
+    Unit,
     Number,
     Boolean,
 }
@@ -12,6 +13,7 @@ pub(crate) enum Type {
 impl Display for Type {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         match self {
+            Type::Unit => write!(f, "{self:?}"),
             Type::Number => write!(f, "{self:?}"),
             Type::Boolean => write!(f, "{self:?}"),
         }
@@ -21,6 +23,7 @@ impl Display for Type {
 impl Type {
     pub(crate) fn default(&self) -> Object {
         match self {
+            Type::Unit => Object::Unit,
             Type::Number => Object::Number(0),
             Type::Boolean => Object::Boolean(false),
         }
@@ -29,6 +32,7 @@ impl Type {
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum Object {
+    Unit,
     Number(Number),
     Boolean(Boolean),
 }
@@ -36,6 +40,7 @@ pub enum Object {
 impl Object {
     pub(crate) fn get_type(&self) -> Type {
         match self {
+            Object::Unit => Type::Unit,
             Object::Number(_) => Type::Number,
             Object::Boolean(_) => Type::Boolean,
         }
@@ -44,14 +49,14 @@ impl Object {
     pub(crate) fn as_number(&self) -> Number {
         match self {
             Object::Number(n) => *n,
-            Object::Boolean(b) => panic!("Can not convert {b} to {}", Type::Number),
+            o => panic!("Can not convert {o} to {}", Type::Number),
         }
     }
 
     pub(crate) fn as_boolean(&self) -> Boolean {
         match self {
-            Object::Number(n) => panic!("Can not convert {n} to {}", Type::Boolean),
             Object::Boolean(b) => *b,
+            o => panic!("Can not convert {o} to {}", Type::Boolean),
         }
     }
 }
@@ -59,6 +64,7 @@ impl Object {
 impl Display for Object {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         match self {
+            Object::Unit => write!(f, "()"),
             Object::Number(n) => write!(f, "{n}"),
             Object::Boolean(b) => write!(f, "{b}"),
         }
