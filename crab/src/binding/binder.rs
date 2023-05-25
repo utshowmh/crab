@@ -126,6 +126,10 @@ impl Binder {
 
     fn bind_assignment_expression(&mut self, expression: AssignmentExpression) -> BoundExpression {
         let bound_expression = self.bind_expression(*expression.expression);
+        self.bindings.borrow_mut().set(
+            expression.identifier.lexeme.clone(),
+            bound_expression.get_type().default(),
+        );
         BoundExpression::Assignment(BoundAssignmentExpression::new(
             expression.identifier.lexeme,
             bound_expression,

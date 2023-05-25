@@ -2,6 +2,7 @@ use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
 use crate::common::types::Object;
 
+#[derive(Debug)]
 pub struct Bindings {
     pub(crate) outer: Option<Rc<RefCell<Bindings>>>,
     bindings: HashMap<String, Object>,

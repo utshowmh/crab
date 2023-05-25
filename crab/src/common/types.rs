@@ -18,6 +18,15 @@ impl Display for Type {
     }
 }
 
+impl Type {
+    pub(crate) fn default(&self) -> Object {
+        match self {
+            Type::Number => Object::Number(0),
+            Type::Boolean => Object::Boolean(false),
+        }
+    }
+}
+
 #[derive(Debug, PartialEq, Clone)]
 pub enum Object {
     Number(Number),
