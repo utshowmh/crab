@@ -43,6 +43,13 @@ impl Evaluator {
                 println!("{}", self.evaluate_expression(&statement.expression));
                 Object::Unit
             }
+            BoundStatement::Var(statement) => {
+                let object = self.evaluate_expression(&statement.expression);
+                self.bindings
+                    .borrow_mut()
+                    .set(statement.name.clone(), object.clone());
+                object
+            }
         }
     }
 
@@ -98,7 +105,7 @@ impl Evaluator {
                 let object = self.evaluate_expression(&expression.expression);
                 self.bindings
                     .borrow_mut()
-                    .set(expression.name.clone(), object.clone());
+                    .reset(expression.name.clone(), object.clone());
                 object
             }
         }

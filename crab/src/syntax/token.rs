@@ -28,6 +28,7 @@ pub(crate) enum TokenKind {
     Identifier,
 
     Print,
+    Var,
 
     Whitespace,
 
@@ -41,6 +42,7 @@ impl TokenKind {
             "true" => TokenKind::True,
             "false" => TokenKind::False,
             "print" => TokenKind::Print,
+            "var" => TokenKind::Var,
             _ => TokenKind::Identifier,
         }
     }
@@ -73,6 +75,7 @@ impl Display for TokenKind {
             TokenKind::Identifier => write!(f, "IDENTIFIER"),
 
             TokenKind::Print => write!(f, "print"),
+            TokenKind::Var => write!(f, "var"),
 
             TokenKind::Whitespace => write!(f, "WHITESPACE"),
 

@@ -311,6 +311,7 @@ impl BoundAssignmentExpression {
 pub enum BoundStatement {
     Expression(BoundExpressionStatement),
     Print(BoundPrintStatement),
+    Var(BoundVarStatement),
 }
 
 #[derive(Debug, Clone)]
@@ -332,5 +333,20 @@ pub struct BoundPrintStatement {
 impl BoundPrintStatement {
     pub(crate) fn new(expression: BoundExpression) -> Self {
         Self { expression }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct BoundVarStatement {
+    pub(crate) name: String,
+    pub(crate) expression: Box<BoundExpression>,
+}
+
+impl BoundVarStatement {
+    pub(crate) fn new(name: String, expression: BoundExpression) -> Self {
+        Self {
+            name,
+            expression: Box::new(expression),
+        }
     }
 }

@@ -82,15 +82,13 @@ impl BinaryExpression {
 #[derive(Debug, Clone)]
 pub struct AssignmentExpression {
     pub(crate) identifier: Token,
-    pub(crate) _equal: Token,
     pub(crate) expression: Box<Expression>,
 }
 
 impl AssignmentExpression {
-    pub(super) fn new(identifier: Token, _equal: Token, expression: Expression) -> Self {
+    pub(super) fn new(identifier: Token, expression: Expression) -> Self {
         Self {
             identifier,
-            _equal,
             expression: Box::new(expression),
         }
     }
@@ -100,6 +98,7 @@ impl AssignmentExpression {
 pub enum Statement {
     Expression(ExpressionStatement),
     Print(PrintStatement),
+    Var(VarStatement),
 }
 
 #[derive(Debug, Clone)]
@@ -121,5 +120,20 @@ pub struct PrintStatement {
 impl PrintStatement {
     pub(super) fn new(expression: Expression) -> Self {
         Self { expression }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct VarStatement {
+    pub(crate) identifier: Token,
+    pub(crate) expression: Expression,
+}
+
+impl VarStatement {
+    pub(super) fn new(identifier: Token, expression: Expression) -> Self {
+        Self {
+            identifier,
+            expression,
+        }
     }
 }

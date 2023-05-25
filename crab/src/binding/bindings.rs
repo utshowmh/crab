@@ -33,6 +33,16 @@ impl Bindings {
         }
     }
 
+    pub(crate) fn reset(&mut self, name: String, object: Object) {
+        if let Some(_) = self.bindings.get(&name) {
+            self.bindings.insert(name, object);
+        } else if let Some(outer) = &self.outer {
+            outer.borrow_mut().reset(name, object)
+        } else {
+            return;
+        }
+    }
+
     pub(crate) fn set(&mut self, name: String, object: Object) {
         self.bindings.insert(name, object);
     }

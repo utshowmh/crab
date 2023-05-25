@@ -9,6 +9,7 @@ use super::{
     syntax_tree::{
         AssignmentExpression, BinaryExpression, Expression, ExpressionStatement, LiteralExpression,
         NameExpression, ParenthesizedExpression, PrintStatement, Statement, UnaryExpression,
+        VarStatement,
     },
     token::{Token, TokenKind},
 };
@@ -43,6 +44,13 @@ impl Parser {
                 self.advance();
                 Statement::Print(PrintStatement::new(self.parse_expression()))
             }
+            TokenKind::Var => {
+                self.advance();
+                let identifier = self.match_token(TokenKind::Identifier);
+                self.match_token(TokenKind::Equal);
+                let expression = self.parse_expression();
+                Statement::Var(VarStatement::new(identifier, expression))
+            }
             _ => Statement::Expression(ExpressionStatement::new(self.parse_expression())),
         }
     }
@@ -53,10 +61,10 @@ impl Parser {
 
     fn parse_assignment_expression(&mut self) -> Expression {
         if self.peek(0).kind == TokenKind::Identifier && self.peek(1).kind == TokenKind::Equal {
-            let identifier = self.next_token();
-            let equal = self.next_token();
+            let identifier = self.match_token(TokenKind::Identifier);
+            self.match_token(TokenKind::Equal);
             let expression = self.parse_assignment_expression();
-            Expression::Assignment(AssignmentExpression::new(identifier, equal, expression))
+            Expression::Assignment(AssignmentExpression::new(identifier, expression))
         } else {
             self.parse_or_expression()
         }

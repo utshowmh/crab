@@ -13,7 +13,7 @@ use super::{
     bound_tree::{
         BoundAssignmentExpression, BoundBinaryExpression, BoundBinaryOperator, BoundExpression,
         BoundExpressionStatement, BoundLiteralExpression, BoundPrintStatement, BoundStatement,
-        BoundUnaryExpression, BoundUnaryOperator, BoundVariableExpression,
+        BoundUnaryExpression, BoundUnaryOperator, BoundVarStatement, BoundVariableExpression,
     },
 };
 
@@ -49,6 +49,17 @@ impl Binder {
             Statement::Print(statement) => BoundStatement::Print(BoundPrintStatement::new(
                 self.bind_expression(statement.expression),
             )),
+            Statement::Var(statement) => {
+                let bound_expression = self.bind_expression(statement.expression);
+                self.bindings.borrow_mut().set(
+                    statement.identifier.lexeme.clone(),
+                    bound_expression.get_type().default(),
+                );
+                BoundStatement::Var(BoundVarStatement::new(
+                    statement.identifier.lexeme,
+                    bound_expression,
+                ))
+            }
         }
     }
 
@@ -126,13 +137,31 @@ impl Binder {
 
     fn bind_assignment_expression(&mut self, expression: AssignmentExpression) -> BoundExpression {
         let bound_expression = self.bind_expression(*expression.expression);
-        self.bindings.borrow_mut().set(
-            expression.identifier.lexeme.clone(),
-            bound_expression.get_type().default(),
-        );
-        BoundExpression::Assignment(BoundAssignmentExpression::new(
-            expression.identifier.lexeme,
-            bound_expression,
-        ))
+        let object = self.bindings.borrow().get(&expression.identifier.lexeme);
+        if let Some(object) = object {
+            if object.get_type() == bound_expression.get_type() {
+                self.bindings.borrow_mut().reset(
+                    expression.identifier.lexeme.clone(),
+                    bound_expression.get_type().default(),
+                );
+                BoundExpression::Assignment(BoundAssignmentExpression::new(
+                    expression.identifier.lexeme,
+                    bound_expression,
+                ))
+            } else {
+                self.diagnostic_bag.borrow_mut().invalid_assignment(
+                    expression.identifier.position,
+                    expression.identifier.lexeme,
+                    object.get_type(),
+                    bound_expression.get_type(),
+                );
+                BoundExpression::Literal(BoundLiteralExpression::new(Object::Unit))
+            }
+        } else {
+            self.diagnostic_bag
+                .borrow_mut()
+                .undefined_name(expression.identifier.position, expression.identifier.lexeme);
+            BoundExpression::Literal(BoundLiteralExpression::new(Object::Unit))
+        }
     }
 }
