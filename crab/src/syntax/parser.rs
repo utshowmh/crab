@@ -7,9 +7,9 @@ use crate::common::{
 
 use super::{
     syntax_tree::{
-        AssignmentExpression, BinaryExpression, Expression, ExpressionStatement, LiteralExpression,
-        NameExpression, ParenthesizedExpression, PrintStatement, Statement, UnaryExpression,
-        VarStatement,
+        AssignmentExpression, BinaryExpression, BlockStatement, Expression, ExpressionStatement,
+        LiteralExpression, NameExpression, ParenthesizedExpression, PrintStatement, Statement,
+        UnaryExpression, VarStatement,
     },
     token::{Token, TokenKind},
 };
@@ -40,19 +40,34 @@ impl Parser {
 
     fn parse_statement(&mut self) -> Statement {
         match self.peek(0).kind {
-            TokenKind::Print => {
-                self.advance();
-                Statement::Print(PrintStatement::new(self.parse_expression()))
-            }
-            TokenKind::Var => {
-                self.advance();
-                let identifier = self.match_token(TokenKind::Identifier);
-                self.match_token(TokenKind::Equal);
-                let expression = self.parse_expression();
-                Statement::Var(VarStatement::new(identifier, expression))
-            }
+            TokenKind::OpenBrace => self.parse_block_statement(),
+            TokenKind::Var => self.parse_var_statement(),
+            TokenKind::Print => self.parse_print_statment(),
             _ => Statement::Expression(ExpressionStatement::new(self.parse_expression())),
         }
+    }
+
+    fn parse_block_statement(&mut self) -> Statement {
+        self.match_token(TokenKind::OpenBrace);
+        let mut statements = vec![];
+        while self.peek(0).kind != TokenKind::CloseBrace {
+            statements.push(self.parse_statement());
+        }
+        self.match_token(TokenKind::CloseBrace);
+        Statement::Block(BlockStatement::new(statements))
+    }
+
+    fn parse_var_statement(&mut self) -> Statement {
+        self.match_token(TokenKind::Var);
+        let identifier = self.match_token(TokenKind::Identifier);
+        self.match_token(TokenKind::Equal);
+        let expression = self.parse_expression();
+        Statement::Var(VarStatement::new(identifier, expression))
+    }
+
+    fn parse_print_statment(&mut self) -> Statement {
+        self.match_token(TokenKind::Print);
+        Statement::Print(PrintStatement::new(self.parse_expression()))
     }
 
     fn parse_expression(&mut self) -> Expression {
@@ -184,7 +199,7 @@ impl Parser {
                 kind.clone(),
                 token.kind,
             );
-            let token = Token::new(kind, "GENERATED".to_string(), self.peek(0).position);
+            let token = Token::new(kind, "%GENERATED%".to_string(), self.peek(0).position);
             self.advance();
             token
         }

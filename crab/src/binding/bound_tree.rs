@@ -312,6 +312,7 @@ pub enum BoundStatement {
     Expression(BoundExpressionStatement),
     Print(BoundPrintStatement),
     Var(BoundVarStatement),
+    Block(BoundBlockStatement),
 }
 
 #[derive(Debug, Clone)]
@@ -348,5 +349,16 @@ impl BoundVarStatement {
             name,
             expression: Box::new(expression),
         }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct BoundBlockStatement {
+    pub(crate) statements: Vec<BoundStatement>,
+}
+
+impl BoundBlockStatement {
+    pub(super) fn new(statements: Vec<BoundStatement>) -> Self {
+        Self { statements }
     }
 }

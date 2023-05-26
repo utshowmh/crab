@@ -3,17 +3,18 @@ use std::{cell::RefCell, rc::Rc};
 use crate::{
     common::{diagnostic::DiagnosticBag, types::Object},
     syntax::syntax_tree::{
-        AssignmentExpression, BinaryExpression, Expression, LiteralExpression, NameExpression,
-        ParenthesizedExpression, Statement, UnaryExpression,
+        AssignmentExpression, BinaryExpression, BlockStatement, Expression, LiteralExpression,
+        NameExpression, ParenthesizedExpression, Statement, UnaryExpression,
     },
 };
 
 use super::{
     bindings::Bindings,
     bound_tree::{
-        BoundAssignmentExpression, BoundBinaryExpression, BoundBinaryOperator, BoundExpression,
-        BoundExpressionStatement, BoundLiteralExpression, BoundPrintStatement, BoundStatement,
-        BoundUnaryExpression, BoundUnaryOperator, BoundVarStatement, BoundVariableExpression,
+        BoundAssignmentExpression, BoundBinaryExpression, BoundBinaryOperator, BoundBlockStatement,
+        BoundExpression, BoundExpressionStatement, BoundLiteralExpression, BoundPrintStatement,
+        BoundStatement, BoundUnaryExpression, BoundUnaryOperator, BoundVarStatement,
+        BoundVariableExpression,
     },
 };
 
@@ -49,18 +50,40 @@ impl Binder {
             Statement::Print(statement) => BoundStatement::Print(BoundPrintStatement::new(
                 self.bind_expression(statement.expression),
             )),
-            Statement::Var(statement) => {
-                let bound_expression = self.bind_expression(statement.expression);
-                self.bindings.borrow_mut().set(
-                    statement.identifier.lexeme.clone(),
-                    bound_expression.get_type().default(),
-                );
-                BoundStatement::Var(BoundVarStatement::new(
-                    statement.identifier.lexeme,
-                    bound_expression,
-                ))
-            }
+            Statement::Var(statement) => self.bind_var_statement(statement),
+            Statement::Block(statement) => self.bind_block_statement(statement),
         }
+    }
+
+    fn bind_var_statement(
+        &mut self,
+        statement: crate::syntax::syntax_tree::VarStatement,
+    ) -> BoundStatement {
+        let bound_expression = self.bind_expression(statement.expression);
+        self.bindings.borrow_mut().set(
+            statement.identifier.lexeme.clone(),
+            bound_expression.get_type().default(),
+        );
+        BoundStatement::Var(BoundVarStatement::new(
+            statement.identifier.lexeme,
+            bound_expression,
+        ))
+    }
+
+    fn bind_block_statement(&mut self, statement: BlockStatement) -> BoundStatement {
+        let mut statements = vec![];
+        self.bindings = Rc::new(RefCell::new(Bindings::extend(Rc::clone(&self.bindings))));
+        for statement in statement.statements {
+            statements.push(self.bind_statement(statement));
+        }
+        let old_bindings = self
+            .bindings
+            .borrow()
+            .outer
+            .clone()
+            .unwrap_or(Rc::new(RefCell::new(Bindings::new())));
+        self.bindings = old_bindings;
+        BoundStatement::Block(BoundBlockStatement::new(statements))
     }
 
     fn bind_expression(&mut self, expression: Expression) -> BoundExpression {

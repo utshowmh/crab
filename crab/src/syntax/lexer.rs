@@ -139,6 +139,16 @@ impl Lexer {
                     ")".to_string(),
                     Position::new(self.current - 1, self.current),
                 ),
+                '{' => Token::new(
+                    TokenKind::OpenBrace,
+                    "{".to_string(),
+                    Position::new(self.current - 1, self.current),
+                ),
+                '}' => Token::new(
+                    TokenKind::CloseBrace,
+                    "}".to_string(),
+                    Position::new(self.current - 1, self.current),
+                ),
 
                 char => {
                     if char.is_ascii_whitespace() {

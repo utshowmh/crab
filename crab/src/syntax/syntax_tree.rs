@@ -99,6 +99,7 @@ pub enum Statement {
     Expression(ExpressionStatement),
     Print(PrintStatement),
     Var(VarStatement),
+    Block(BlockStatement),
 }
 
 #[derive(Debug, Clone)]
@@ -135,5 +136,16 @@ impl VarStatement {
             identifier,
             expression,
         }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct BlockStatement {
+    pub(crate) statements: Vec<Statement>,
+}
+
+impl BlockStatement {
+    pub(super) fn new(statements: Vec<Statement>) -> Self {
+        Self { statements }
     }
 }

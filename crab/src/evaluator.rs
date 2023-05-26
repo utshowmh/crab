@@ -50,6 +50,20 @@ impl Evaluator {
                     .set(statement.name.clone(), object.clone());
                 object
             }
+            BoundStatement::Block(statement) => {
+                self.bindings = Rc::new(RefCell::new(Bindings::extend(Rc::clone(&self.bindings))));
+                for statement in statement.statements {
+                    self.evaluate_statement(statement);
+                }
+                let old_bindings = self
+                    .bindings
+                    .borrow()
+                    .outer
+                    .clone()
+                    .unwrap_or(Rc::new(RefCell::new(Bindings::new())));
+                self.bindings = old_bindings;
+                Object::Unit
+            }
         }
     }
 

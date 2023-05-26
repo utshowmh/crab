@@ -20,6 +20,8 @@ pub(crate) enum TokenKind {
 
     OpenParen,
     CloseParen,
+    OpenBrace,
+    CloseBrace,
 
     Number,
 
@@ -67,6 +69,8 @@ impl Display for TokenKind {
 
             TokenKind::OpenParen => write!(f, "("),
             TokenKind::CloseParen => write!(f, ")"),
+            TokenKind::OpenBrace => write!(f, "{{"),
+            TokenKind::CloseBrace => write!(f, "}}"),
 
             TokenKind::Number => write!(f, "NUMBER"),
 
