@@ -10,6 +10,11 @@ pub(crate) enum BoundBinaryOperationKind {
     Multiplication,
     Division,
 
+    Greater,
+    Lesser,
+    GreaterEqual,
+    LesserEqual,
+
     LogicalAnd,
     LogicalOr,
 
@@ -136,6 +141,34 @@ impl BoundBinaryOperator {
                 Type::Number,
                 Type::Number,
                 Type::Number,
+            ),
+            BoundBinaryOperator::new(
+                TokenKind::Greater,
+                BoundBinaryOperationKind::Greater,
+                Type::Number,
+                Type::Number,
+                Type::Boolean,
+            ),
+            BoundBinaryOperator::new(
+                TokenKind::Lesser,
+                BoundBinaryOperationKind::Lesser,
+                Type::Number,
+                Type::Number,
+                Type::Boolean,
+            ),
+            BoundBinaryOperator::new(
+                TokenKind::GreaterEqual,
+                BoundBinaryOperationKind::GreaterEqual,
+                Type::Number,
+                Type::Number,
+                Type::Boolean,
+            ),
+            BoundBinaryOperator::new(
+                TokenKind::LesserEqual,
+                BoundBinaryOperationKind::LesserEqual,
+                Type::Number,
+                Type::Number,
+                Type::Boolean,
             ),
             BoundBinaryOperator::new(
                 TokenKind::AmpersandAmpersand,

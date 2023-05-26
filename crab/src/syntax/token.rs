@@ -9,6 +9,11 @@ pub(crate) enum TokenKind {
     Star,
     Slash,
 
+    Greater,
+    GreaterEqual,
+    Lesser,
+    LesserEqual,
+
     Bang,
     BangEqual,
     Equal,
@@ -57,6 +62,11 @@ impl Display for TokenKind {
             TokenKind::Minus => write!(f, "-"),
             TokenKind::Star => write!(f, "*"),
             TokenKind::Slash => write!(f, "/"),
+
+            TokenKind::Greater => write!(f, ">"),
+            TokenKind::GreaterEqual => write!(f, ">="),
+            TokenKind::Lesser => write!(f, "<"),
+            TokenKind::LesserEqual => write!(f, "<="),
 
             TokenKind::Bang => write!(f, "!"),
             TokenKind::BangEqual => write!(f, "!="),

@@ -103,6 +103,19 @@ impl Evaluator {
                         Object::Number(left.as_number() / right.as_number())
                     }
 
+                    BoundBinaryOperationKind::Greater => {
+                        Object::Boolean(left.as_number() > right.as_number())
+                    }
+                    BoundBinaryOperationKind::Lesser => {
+                        Object::Boolean(left.as_number() < right.as_number())
+                    }
+                    BoundBinaryOperationKind::GreaterEqual => {
+                        Object::Boolean(left.as_number() >= right.as_number())
+                    }
+                    BoundBinaryOperationKind::LesserEqual => {
+                        Object::Boolean(left.as_number() <= right.as_number())
+                    }
+
                     BoundBinaryOperationKind::LogicalAnd => {
                         Object::Boolean(left.as_boolean() && right.as_boolean())
                     }

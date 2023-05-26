@@ -106,8 +106,23 @@ impl Parser {
     }
 
     fn parse_equality_expression(&mut self) -> Expression {
-        let mut left = self.parse_additive_expression();
+        let mut left = self.parse_comparison_expression();
         while self.token_matches(&[TokenKind::BangEqual, TokenKind::EqualEqual]) {
+            let operator = self.next_token();
+            let right = self.parse_comparison_expression();
+            left = Expression::Binary(BinaryExpression::new(left, operator, right));
+        }
+        left
+    }
+
+    fn parse_comparison_expression(&mut self) -> Expression {
+        let mut left = self.parse_additive_expression();
+        while self.token_matches(&[
+            TokenKind::Greater,
+            TokenKind::Lesser,
+            TokenKind::GreaterEqual,
+            TokenKind::LesserEqual,
+        ]) {
             let operator = self.next_token();
             let right = self.parse_additive_expression();
             left = Expression::Binary(BinaryExpression::new(left, operator, right));

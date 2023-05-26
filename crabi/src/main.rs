@@ -64,7 +64,7 @@ fn main() {
                         );
                         eprintln!(
                             "{}",
-                            format!("Error: {}", diagnostic.message).truecolor(255, 0, 0)
+                            format!("Error: {}.", diagnostic.message).truecolor(255, 0, 0)
                         );
                         eprintln!(
                             "\t{}",

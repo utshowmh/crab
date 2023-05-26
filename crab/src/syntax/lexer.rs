@@ -64,6 +64,40 @@ impl Lexer {
                     "/".to_string(),
                     Position::new(self.current - 1, self.current),
                 ),
+
+                '>' => {
+                    if self.peek(0) == '=' {
+                        self.advance();
+                        Token::new(
+                            TokenKind::GreaterEqual,
+                            ">=".to_string(),
+                            Position::new(self.current - 2, self.current),
+                        )
+                    } else {
+                        Token::new(
+                            TokenKind::Greater,
+                            ">".to_string(),
+                            Position::new(self.current - 1, self.current),
+                        )
+                    }
+                }
+                '<' => {
+                    if self.peek(0) == '=' {
+                        self.advance();
+                        Token::new(
+                            TokenKind::LesserEqual,
+                            "<=".to_string(),
+                            Position::new(self.current - 2, self.current),
+                        )
+                    } else {
+                        Token::new(
+                            TokenKind::Lesser,
+                            "<".to_string(),
+                            Position::new(self.current - 1, self.current),
+                        )
+                    }
+                }
+
                 '!' => {
                     if self.peek(0) == '=' {
                         self.advance();
