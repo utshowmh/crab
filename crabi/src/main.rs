@@ -13,11 +13,20 @@ fn main() {
     let mut bindings = Rc::new(RefCell::new(Bindings::new()));
     let mut show_syntax_tree = false;
     let mut show_bound_tree = false;
+    let mut stdout = stdout();
 
     loop {
         print!("➜  ");
-        stdout().flush().unwrap();
-        stdin().read_line(&mut source).unwrap();
+        stdout.flush().unwrap();
+        for line in stdin().lines() {
+            let line = line.unwrap();
+            if line.trim().is_empty() {
+                break;
+            }
+            source.push_str(&line);
+            print!(".. ");
+            stdout.flush().unwrap();
+        }
 
         match source.trim() {
             "@exit" | "@e" => break,

@@ -64,6 +64,16 @@ impl Evaluator {
                 self.bindings = old_bindings;
                 Object::Unit
             }
+            BoundStatement::If(statement) => {
+                if self.evaluate_expression(&statement.condition).as_boolean() {
+                    self.evaluate_statement(*statement.consequence)
+                } else {
+                    match *statement.else_clause {
+                        Some(statement) => self.evaluate_statement(statement),
+                        None => Object::Unit,
+                    }
+                }
+            }
         }
     }
 

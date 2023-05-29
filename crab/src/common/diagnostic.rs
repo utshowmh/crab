@@ -2,7 +2,7 @@ use crate::syntax::token::TokenKind;
 
 use super::types::Type;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct Position {
     pub start: usize,
     pub end: usize,
@@ -113,6 +113,18 @@ impl DiagnosticBag {
         self.diagnostics.push(Diagnostic::new(
             position,
             format!("Name '{name}' expects '{expected_type}', got '{given_type}'"),
+        ))
+    }
+
+    pub(crate) fn invalid_expression_type(
+        &mut self,
+        position: Position,
+        expected_type: Type,
+        given_type: Type,
+    ) {
+        self.diagnostics.push(Diagnostic::new(
+            position,
+            format!("Expected '{expected_type}' expression, got '{given_type}'"),
         ))
     }
 }

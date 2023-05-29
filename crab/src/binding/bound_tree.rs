@@ -1,5 +1,8 @@
 use crate::{
-    common::types::{Object, Type},
+    common::{
+        diagnostic::Position,
+        types::{Object, Type},
+    },
     syntax::token::TokenKind,
 };
 
@@ -244,20 +247,35 @@ impl BoundExpression {
             BoundExpression::Assignment(expression) => expression.get_type(),
         }
     }
+
+    pub(crate) fn get_position(&self) -> Position {
+        match self {
+            BoundExpression::Literal(expression) => expression.get_position(),
+            BoundExpression::Variable(expression) => expression.get_position(),
+            BoundExpression::Unary(expression) => expression.get_position(),
+            BoundExpression::Binary(expression) => expression.get_position(),
+            BoundExpression::Assignment(expression) => expression.get_position(),
+        }
+    }
 }
 
 #[derive(Debug, Clone)]
 pub(crate) struct BoundLiteralExpression {
     pub(crate) value: Object,
+    position: Position,
 }
 
 impl BoundLiteralExpression {
-    pub(super) fn new(value: Object) -> Self {
-        Self { value }
+    pub(super) fn new(value: Object, position: Position) -> Self {
+        Self { value, position }
     }
 
     fn get_type(&self) -> Type {
         self.value.get_type()
+    }
+
+    fn get_position(&self) -> Position {
+        self.position.clone()
     }
 }
 
@@ -265,15 +283,24 @@ impl BoundLiteralExpression {
 pub(crate) struct BoundVariableExpression {
     pub(crate) name: String,
     pub(crate) value_type: Type,
+    position: Position,
 }
 
 impl BoundVariableExpression {
-    pub(super) fn new(name: String, value_type: Type) -> Self {
-        Self { name, value_type }
+    pub(super) fn new(name: String, value_type: Type, position: Position) -> Self {
+        Self {
+            name,
+            value_type,
+            position,
+        }
     }
 
     fn get_type(&self) -> Type {
         self.value_type.clone()
+    }
+
+    fn get_position(&self) -> Position {
+        self.position.clone()
     }
 }
 
@@ -281,18 +308,28 @@ impl BoundVariableExpression {
 pub(crate) struct BoundUnaryExpression {
     pub(crate) operator: BoundUnaryOperator,
     pub(crate) right: Box<BoundExpression>,
+    position: Position,
 }
 
 impl BoundUnaryExpression {
-    pub(super) fn new(operator: BoundUnaryOperator, right: BoundExpression) -> Self {
+    pub(super) fn new(
+        operator: BoundUnaryOperator,
+        right: BoundExpression,
+        position: Position,
+    ) -> Self {
         Self {
             operator,
             right: Box::new(right),
+            position,
         }
     }
 
     fn get_type(&self) -> Type {
         self.operator.result_type.clone()
+    }
+
+    fn get_position(&self) -> Position {
+        self.position.clone()
     }
 }
 
@@ -301,6 +338,7 @@ pub(crate) struct BoundBinaryExpression {
     pub(crate) left: Box<BoundExpression>,
     pub(crate) operator: BoundBinaryOperator,
     pub(crate) right: Box<BoundExpression>,
+    position: Position,
 }
 
 impl BoundBinaryExpression {
@@ -308,16 +346,22 @@ impl BoundBinaryExpression {
         left: BoundExpression,
         operator: BoundBinaryOperator,
         right: BoundExpression,
+        position: Position,
     ) -> Self {
         Self {
             left: Box::new(left),
             operator,
             right: Box::new(right),
+            position,
         }
     }
 
     fn get_type(&self) -> Type {
         self.operator.result_type.clone()
+    }
+
+    fn get_position(&self) -> Position {
+        self.position.clone()
     }
 }
 
@@ -325,18 +369,24 @@ impl BoundBinaryExpression {
 pub(crate) struct BoundAssignmentExpression {
     pub(crate) name: String,
     pub(crate) expression: Box<BoundExpression>,
+    position: Position,
 }
 
 impl BoundAssignmentExpression {
-    pub(crate) fn new(name: String, expression: BoundExpression) -> Self {
+    pub(crate) fn new(name: String, expression: BoundExpression, position: Position) -> Self {
         Self {
             name,
             expression: Box::new(expression),
+            position,
         }
     }
 
     pub(crate) fn get_type(&self) -> Type {
         self.expression.get_type()
+    }
+
+    fn get_position(&self) -> Position {
+        self.position.clone()
     }
 }
 
@@ -346,6 +396,7 @@ pub enum BoundStatement {
     Print(BoundPrintStatement),
     Var(BoundVarStatement),
     Block(BoundBlockStatement),
+    If(BoundIfStatement),
 }
 
 #[derive(Debug, Clone)]
@@ -393,5 +444,26 @@ pub struct BoundBlockStatement {
 impl BoundBlockStatement {
     pub(super) fn new(statements: Vec<BoundStatement>) -> Self {
         Self { statements }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct BoundIfStatement {
+    pub(crate) condition: BoundExpression,
+    pub(crate) consequence: Box<BoundStatement>,
+    pub(crate) else_clause: Box<Option<BoundStatement>>,
+}
+
+impl BoundIfStatement {
+    pub(super) fn new(
+        condition: BoundExpression,
+        consequence: BoundStatement,
+        else_clause: Option<BoundStatement>,
+    ) -> Self {
+        Self {
+            condition,
+            consequence: Box::new(consequence),
+            else_clause: Box::new(else_clause),
+        }
     }
 }

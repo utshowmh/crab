@@ -8,8 +8,8 @@ use crate::common::{
 use super::{
     syntax_tree::{
         AssignmentExpression, BinaryExpression, BlockStatement, Expression, ExpressionStatement,
-        LiteralExpression, NameExpression, ParenthesizedExpression, PrintStatement, Statement,
-        UnaryExpression, VarStatement,
+        IfStatement, LiteralExpression, NameExpression, ParenthesizedExpression, PrintStatement,
+        Statement, UnaryExpression, VarStatement,
     },
     token::{Token, TokenKind},
 };
@@ -40,11 +40,30 @@ impl Parser {
 
     fn parse_statement(&mut self) -> Statement {
         match self.peek(0).kind {
+            TokenKind::If => self.parse_if_statement(),
             TokenKind::OpenBrace => self.parse_block_statement(),
             TokenKind::Var => self.parse_var_statement(),
             TokenKind::Print => self.parse_print_statment(),
             _ => Statement::Expression(ExpressionStatement::new(self.parse_expression())),
         }
+    }
+
+    fn parse_if_statement(&mut self) -> Statement {
+        self.match_token(TokenKind::If);
+        let condition = self.parse_expression();
+        let consequence = self.parse_statement();
+        let else_clause = match (self.peek(0).kind, self.peek(1).kind) {
+            (TokenKind::Else, TokenKind::If) => {
+                self.advance();
+                Some(self.parse_if_statement())
+            }
+            (TokenKind::Else, _) => {
+                self.advance();
+                Some(self.parse_statement())
+            }
+            (_, _) => None,
+        };
+        Statement::If(IfStatement::new(condition, consequence, else_clause))
     }
 
     fn parse_block_statement(&mut self) -> Statement {
@@ -171,12 +190,18 @@ impl Parser {
             TokenKind::True | TokenKind::False => {
                 let token = self.next_token();
                 let value = token.lexeme.parse().unwrap();
-                Expression::Literal(LiteralExpression::new(Object::Boolean(value)))
+                Expression::Literal(LiteralExpression::new(
+                    Object::Boolean(value),
+                    token.position,
+                ))
             }
             TokenKind::Number => {
                 let token = self.next_token();
                 let value = token.lexeme.parse().unwrap();
-                Expression::Literal(LiteralExpression::new(Object::Number(value)))
+                Expression::Literal(LiteralExpression::new(
+                    Object::Number(value),
+                    token.position,
+                ))
             }
             _ => {
                 let identifier = self.match_token(TokenKind::Identifier);

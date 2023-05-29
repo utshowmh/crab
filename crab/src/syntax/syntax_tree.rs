@@ -1,4 +1,4 @@
-use crate::common::types::Object;
+use crate::common::{diagnostic::Position, types::Object};
 
 use super::token::Token;
 
@@ -12,14 +12,32 @@ pub enum Expression {
     Assignment(AssignmentExpression),
 }
 
+impl Expression {
+    pub(crate) fn get_position(&self) -> Position {
+        match self {
+            Expression::Literal(expression) => expression.get_position(),
+            Expression::Name(expression) => expression.get_position(),
+            Expression::Parenthesized(expression) => expression.get_position(),
+            Expression::Unary(expression) => expression.get_position(),
+            Expression::Binary(expression) => expression.get_position(),
+            Expression::Assignment(expression) => expression.get_position(),
+        }
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct LiteralExpression {
     pub(crate) value: Object,
+    position: Position,
 }
 
 impl LiteralExpression {
-    pub(super) fn new(value: Object) -> Self {
-        Self { value }
+    pub(super) fn new(value: Object, position: Position) -> Self {
+        Self { value, position }
+    }
+
+    pub(crate) fn get_position(&self) -> Position {
+        self.position.clone()
     }
 }
 
@@ -31,6 +49,10 @@ pub struct NameExpression {
 impl NameExpression {
     pub(super) fn new(identifier: Token) -> Self {
         Self { identifier }
+    }
+
+    pub(crate) fn get_position(&self) -> Position {
+        self.identifier.position.clone()
     }
 }
 
@@ -44,6 +66,10 @@ impl ParenthesizedExpression {
         Self {
             expression: Box::new(expression),
         }
+    }
+
+    pub(crate) fn get_position(&self) -> Position {
+        self.expression.get_position()
     }
 }
 
@@ -59,6 +85,10 @@ impl UnaryExpression {
             operator,
             right: Box::new(right),
         }
+    }
+
+    pub(crate) fn get_position(&self) -> Position {
+        self.operator.position.clone()
     }
 }
 
@@ -77,6 +107,10 @@ impl BinaryExpression {
             right: Box::new(right),
         }
     }
+
+    pub(crate) fn get_position(&self) -> Position {
+        self.operator.position.clone()
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -92,6 +126,10 @@ impl AssignmentExpression {
             expression: Box::new(expression),
         }
     }
+
+    pub(crate) fn get_position(&self) -> Position {
+        self.identifier.position.clone()
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -100,6 +138,7 @@ pub enum Statement {
     Print(PrintStatement),
     Var(VarStatement),
     Block(BlockStatement),
+    If(IfStatement),
 }
 
 #[derive(Debug, Clone)]
@@ -147,5 +186,26 @@ pub struct BlockStatement {
 impl BlockStatement {
     pub(super) fn new(statements: Vec<Statement>) -> Self {
         Self { statements }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct IfStatement {
+    pub(crate) condition: Expression,
+    pub(crate) consequence: Box<Statement>,
+    pub(crate) else_clause: Box<Option<Statement>>,
+}
+
+impl IfStatement {
+    pub(super) fn new(
+        condition: Expression,
+        consequence: Statement,
+        else_clause: Option<Statement>,
+    ) -> Self {
+        Self {
+            condition,
+            consequence: Box::new(consequence),
+            else_clause: Box::new(else_clause),
+        }
     }
 }

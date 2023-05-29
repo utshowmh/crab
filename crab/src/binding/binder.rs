@@ -1,10 +1,13 @@
 use std::{cell::RefCell, rc::Rc};
 
 use crate::{
-    common::{diagnostic::DiagnosticBag, types::Object},
+    common::{
+        diagnostic::DiagnosticBag,
+        types::{Object, Type},
+    },
     syntax::syntax_tree::{
-        AssignmentExpression, BinaryExpression, BlockStatement, Expression, LiteralExpression,
-        NameExpression, ParenthesizedExpression, Statement, UnaryExpression,
+        AssignmentExpression, BinaryExpression, BlockStatement, Expression, IfStatement,
+        LiteralExpression, NameExpression, ParenthesizedExpression, Statement, UnaryExpression,
     },
 };
 
@@ -12,9 +15,9 @@ use super::{
     bindings::Bindings,
     bound_tree::{
         BoundAssignmentExpression, BoundBinaryExpression, BoundBinaryOperator, BoundBlockStatement,
-        BoundExpression, BoundExpressionStatement, BoundLiteralExpression, BoundPrintStatement,
-        BoundStatement, BoundUnaryExpression, BoundUnaryOperator, BoundVarStatement,
-        BoundVariableExpression,
+        BoundExpression, BoundExpressionStatement, BoundIfStatement, BoundLiteralExpression,
+        BoundPrintStatement, BoundStatement, BoundUnaryExpression, BoundUnaryOperator,
+        BoundVarStatement, BoundVariableExpression,
     },
 };
 
@@ -52,6 +55,7 @@ impl Binder {
             )),
             Statement::Var(statement) => self.bind_var_statement(statement),
             Statement::Block(statement) => self.bind_block_statement(statement),
+            Statement::If(statement) => self.bind_if_statement(statement),
         }
     }
 
@@ -86,6 +90,27 @@ impl Binder {
         BoundStatement::Block(BoundBlockStatement::new(statements))
     }
 
+    fn bind_if_statement(&mut self, statement: IfStatement) -> BoundStatement {
+        let condition = self.bind_expression(statement.condition.clone());
+        if condition.get_type() == Type::Boolean {
+            let consequence = self.bind_statement(*statement.consequence);
+            let else_clause = match *statement.else_clause {
+                Some(statement) => Some(self.bind_statement(statement)),
+                None => None,
+            };
+            BoundStatement::If(BoundIfStatement::new(condition, consequence, else_clause))
+        } else {
+            self.diagnostic_bag.borrow_mut().invalid_expression_type(
+                condition.get_position(),
+                Type::Boolean,
+                condition.get_type(),
+            );
+            BoundStatement::Expression(BoundExpressionStatement::new(BoundExpression::Literal(
+                BoundLiteralExpression::new(Object::Unit, statement.condition.get_position()),
+            )))
+        }
+    }
+
     fn bind_expression(&mut self, expression: Expression) -> BoundExpression {
         match expression {
             Expression::Literal(expression) => self.bind_literal_expression(expression),
@@ -98,7 +123,10 @@ impl Binder {
     }
 
     fn bind_literal_expression(&self, expression: LiteralExpression) -> BoundExpression {
-        BoundExpression::Literal(BoundLiteralExpression::new(expression.value))
+        BoundExpression::Literal(BoundLiteralExpression::new(
+            expression.value.clone(),
+            expression.get_position(),
+        ))
     }
 
     fn bind_name_expression(&mut self, expression: NameExpression) -> BoundExpression {
@@ -106,12 +134,17 @@ impl Binder {
             BoundExpression::Variable(BoundVariableExpression::new(
                 expression.identifier.lexeme.clone(),
                 value.get_type(),
+                expression.get_position(),
             ))
         } else {
-            self.diagnostic_bag
-                .borrow_mut()
-                .undefined_name(expression.identifier.position, expression.identifier.lexeme);
-            BoundExpression::Literal(BoundLiteralExpression::new(Object::Unit))
+            self.diagnostic_bag.borrow_mut().undefined_name(
+                expression.identifier.position.clone(),
+                expression.identifier.lexeme.clone(),
+            );
+            BoundExpression::Literal(BoundLiteralExpression::new(
+                Object::Unit,
+                expression.get_position(),
+            ))
         }
     }
 
@@ -123,43 +156,58 @@ impl Binder {
     }
 
     fn bind_unary_expression(&mut self, expression: UnaryExpression) -> BoundExpression {
-        let right = self.bind_expression(*expression.right);
+        let right = self.bind_expression(*expression.right.clone());
         if let Some(operator) =
             BoundUnaryOperator::bind(expression.operator.kind.clone(), right.get_type())
         {
-            BoundExpression::Unary(BoundUnaryExpression::new(operator, right))
+            BoundExpression::Unary(BoundUnaryExpression::new(
+                operator,
+                right,
+                expression.get_position(),
+            ))
         } else {
             self.diagnostic_bag.borrow_mut().invalid_unary_operator(
-                expression.operator.position,
-                expression.operator.kind,
+                expression.operator.position.clone(),
+                expression.operator.kind.clone(),
                 right.get_type(),
             );
-            BoundExpression::Literal(BoundLiteralExpression::new(Object::Unit))
+            BoundExpression::Literal(BoundLiteralExpression::new(
+                Object::Unit,
+                expression.get_position(),
+            ))
         }
     }
 
     fn bind_binary_expression(&mut self, expression: BinaryExpression) -> BoundExpression {
-        let left = self.bind_expression(*expression.left);
-        let right = self.bind_expression(*expression.right);
+        let left = self.bind_expression(*expression.left.clone());
+        let right = self.bind_expression(*expression.right.clone());
         if let Some(operator) = BoundBinaryOperator::bind(
             expression.operator.kind.clone(),
             left.get_type(),
             right.get_type(),
         ) {
-            BoundExpression::Binary(BoundBinaryExpression::new(left, operator, right))
+            BoundExpression::Binary(BoundBinaryExpression::new(
+                left,
+                operator,
+                right,
+                expression.get_position(),
+            ))
         } else {
             self.diagnostic_bag.borrow_mut().invalid_binary_operator(
-                expression.operator.position,
-                expression.operator.kind,
+                expression.operator.position.clone(),
+                expression.operator.kind.clone(),
                 left.get_type(),
                 right.get_type(),
             );
-            BoundExpression::Literal(BoundLiteralExpression::new(Object::Unit))
+            BoundExpression::Literal(BoundLiteralExpression::new(
+                Object::Unit,
+                expression.get_position(),
+            ))
         }
     }
 
     fn bind_assignment_expression(&mut self, expression: AssignmentExpression) -> BoundExpression {
-        let bound_expression = self.bind_expression(*expression.expression);
+        let bound_expression = self.bind_expression(*expression.expression.clone());
         let object = self.bindings.borrow().get(&expression.identifier.lexeme);
         if let Some(object) = object {
             if object.get_type() == bound_expression.get_type() {
@@ -168,23 +216,31 @@ impl Binder {
                     bound_expression.get_type().default(),
                 );
                 BoundExpression::Assignment(BoundAssignmentExpression::new(
-                    expression.identifier.lexeme,
+                    expression.identifier.lexeme.clone(),
                     bound_expression,
+                    expression.get_position(),
                 ))
             } else {
                 self.diagnostic_bag.borrow_mut().invalid_assignment(
-                    expression.identifier.position,
-                    expression.identifier.lexeme,
+                    expression.identifier.position.clone(),
+                    expression.identifier.lexeme.clone(),
                     object.get_type(),
                     bound_expression.get_type(),
                 );
-                BoundExpression::Literal(BoundLiteralExpression::new(Object::Unit))
+                BoundExpression::Literal(BoundLiteralExpression::new(
+                    Object::Unit,
+                    expression.get_position(),
+                ))
             }
         } else {
-            self.diagnostic_bag
-                .borrow_mut()
-                .undefined_name(expression.identifier.position, expression.identifier.lexeme);
-            BoundExpression::Literal(BoundLiteralExpression::new(Object::Unit))
+            self.diagnostic_bag.borrow_mut().undefined_name(
+                expression.identifier.position.clone(),
+                expression.identifier.lexeme.clone(),
+            );
+            BoundExpression::Literal(BoundLiteralExpression::new(
+                Object::Unit,
+                expression.get_position(),
+            ))
         }
     }
 }
