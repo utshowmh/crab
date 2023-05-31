@@ -8,8 +8,8 @@ use crate::common::{
 use super::{
     syntax_tree::{
         AssignmentExpression, BinaryExpression, BlockStatement, Expression, ExpressionStatement,
-        IfStatement, LiteralExpression, NameExpression, ParenthesizedExpression, PrintStatement,
-        Statement, UnaryExpression, VarStatement, WhileStatement,
+        ForStatement, IfStatement, LiteralExpression, NameExpression, ParenthesizedExpression,
+        PrintStatement, Statement, UnaryExpression, VarStatement, WhileStatement,
     },
     token::{Token, TokenKind},
 };
@@ -40,6 +40,7 @@ impl Parser {
 
     fn parse_statement(&mut self) -> Statement {
         match self.peek(0).kind {
+            TokenKind::For => self.parse_for_statement(),
             TokenKind::While => self.parse_while_statement(),
             TokenKind::If => self.parse_if_statement(),
             TokenKind::OpenBrace => self.parse_block_statement(),
@@ -47,6 +48,22 @@ impl Parser {
             TokenKind::Print => self.parse_print_statement(),
             _ => Statement::Expression(ExpressionStatement::new(self.parse_expression())),
         }
+    }
+
+    fn parse_for_statement(&mut self) -> Statement {
+        self.match_token(TokenKind::For);
+        let identifier = self.match_token(TokenKind::Identifier);
+        self.match_token(TokenKind::Equal);
+        let lower_bound = self.parse_expression();
+        self.match_token(TokenKind::To);
+        let upper_bound = self.parse_expression();
+        let body = self.parse_statement();
+        Statement::For(ForStatement::new(
+            identifier,
+            lower_bound,
+            upper_bound,
+            body,
+        ))
     }
 
     fn parse_while_statement(&mut self) -> Statement {

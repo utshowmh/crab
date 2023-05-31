@@ -6,9 +6,9 @@ use crate::{
         types::{Object, Type},
     },
     syntax::syntax_tree::{
-        AssignmentExpression, BinaryExpression, BlockStatement, Expression, IfStatement,
-        LiteralExpression, NameExpression, ParenthesizedExpression, Statement, UnaryExpression,
-        VarStatement, WhileStatement,
+        AssignmentExpression, BinaryExpression, BlockStatement, Expression, ForStatement,
+        IfStatement, LiteralExpression, NameExpression, ParenthesizedExpression, Statement,
+        UnaryExpression, VarStatement, WhileStatement,
     },
 };
 
@@ -16,9 +16,9 @@ use super::{
     bindings::Bindings,
     bound_tree::{
         BoundAssignmentExpression, BoundBinaryExpression, BoundBinaryOperator, BoundBlockStatement,
-        BoundExpression, BoundExpressionStatement, BoundIfStatement, BoundLiteralExpression,
-        BoundPrintStatement, BoundStatement, BoundUnaryExpression, BoundUnaryOperator,
-        BoundVarStatement, BoundVariableExpression, BoundWhileStatement,
+        BoundExpression, BoundExpressionStatement, BoundForStatement, BoundIfStatement,
+        BoundLiteralExpression, BoundPrintStatement, BoundStatement, BoundUnaryExpression,
+        BoundUnaryOperator, BoundVarStatement, BoundVariableExpression, BoundWhileStatement,
     },
 };
 
@@ -58,6 +58,7 @@ impl Binder {
             Statement::Block(statement) => self.bind_block_statement(statement),
             Statement::If(statement) => self.bind_if_statement(statement),
             Statement::While(statement) => self.bind_while_statement(statement),
+            Statement::For(statement) => self.bind_for_statement(statement),
         }
     }
 
@@ -122,6 +123,40 @@ impl Binder {
             BoundStatement::Expression(BoundExpressionStatement::new(BoundExpression::Literal(
                 BoundLiteralExpression::new(Object::Unit, statement.condition.get_position()),
             )))
+        }
+    }
+
+    fn bind_for_statement(&mut self, statement: ForStatement) -> BoundStatement {
+        let lower_bound = self.bind_expression(statement.lower_bound);
+        let upper_bound = self.bind_expression(statement.upper_bound);
+        match (lower_bound.get_type(), upper_bound.get_type()) {
+            (Type::Number, Type::Number) => {
+                self.bindings
+                    .borrow_mut()
+                    .set(statement.identifier.lexeme.clone(), Type::Number.default());
+                let body = self.bind_statement(*statement.body);
+                BoundStatement::For(BoundForStatement::new(
+                    statement.identifier.lexeme,
+                    lower_bound,
+                    upper_bound,
+                    body,
+                ))
+            }
+            (_, _) => {
+                self.diagnostic_bag.borrow_mut().invalid_expression_type(
+                    lower_bound.get_position(),
+                    Type::Number,
+                    lower_bound.get_type(),
+                );
+                self.diagnostic_bag.borrow_mut().invalid_expression_type(
+                    upper_bound.get_position(),
+                    Type::Number,
+                    upper_bound.get_type(),
+                );
+                BoundStatement::Expression(BoundExpressionStatement::new(BoundExpression::Literal(
+                    BoundLiteralExpression::new(Object::Unit, statement.identifier.position),
+                )))
+            }
         }
     }
 

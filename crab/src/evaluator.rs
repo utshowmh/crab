@@ -84,6 +84,27 @@ impl Evaluator {
                 }
                 Object::Unit
             }
+            BoundStatement::For(statement) => {
+                let mut lower_bound = self.evaluate_expression(&statement.lower_bound).as_number();
+                let upper_bound = self.evaluate_expression(&statement.upper_bound).as_number();
+                self.bindings
+                    .borrow_mut()
+                    .set(statement.identifier.clone(), Object::Number(lower_bound));
+                while lower_bound < upper_bound {
+                    self.evaluate_statement(*statement.body.clone());
+                    lower_bound = self
+                        .bindings
+                        .borrow()
+                        .get(&statement.identifier)
+                        .unwrap()
+                        .as_number();
+                    self.bindings.borrow_mut().reset(
+                        statement.identifier.clone(),
+                        Object::Number(lower_bound + 1),
+                    );
+                }
+                Object::Unit
+            }
         }
     }
 

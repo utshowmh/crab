@@ -150,6 +150,7 @@ pub enum Statement {
     Block(BlockStatement),
     If(IfStatement),
     While(WhileStatement),
+    For(ForStatement),
 }
 
 #[derive(Debug, Clone)]
@@ -231,6 +232,30 @@ impl WhileStatement {
     pub(super) fn new(condition: Expression, body: Statement) -> Self {
         Self {
             condition,
+            body: Box::new(body),
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct ForStatement {
+    pub(crate) identifier: Token,
+    pub(crate) lower_bound: Expression,
+    pub(crate) upper_bound: Expression,
+    pub(crate) body: Box<Statement>,
+}
+
+impl ForStatement {
+    pub(super) fn new(
+        identifier: Token,
+        lower_bound: Expression,
+        upper_bound: Expression,
+        body: Statement,
+    ) -> Self {
+        Self {
+            identifier,
+            lower_bound,
+            upper_bound,
             body: Box::new(body),
         }
     }

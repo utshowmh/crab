@@ -391,6 +391,7 @@ pub enum BoundStatement {
     Block(BoundBlockStatement),
     If(BoundIfStatement),
     While(BoundWhileStatement),
+    For(BoundForStatement),
 }
 
 #[derive(Debug, Clone)]
@@ -472,6 +473,30 @@ impl BoundWhileStatement {
     pub(super) fn new(condition: BoundExpression, body: BoundStatement) -> Self {
         Self {
             condition,
+            body: Box::new(body),
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct BoundForStatement {
+    pub(crate) identifier: String,
+    pub(crate) lower_bound: BoundExpression,
+    pub(crate) upper_bound: BoundExpression,
+    pub(crate) body: Box<BoundStatement>,
+}
+
+impl BoundForStatement {
+    pub(super) fn new(
+        identifier: String,
+        lower_bound: BoundExpression,
+        upper_bound: BoundExpression,
+        body: BoundStatement,
+    ) -> Self {
+        Self {
+            identifier,
+            lower_bound,
+            upper_bound,
             body: Box::new(body),
         }
     }
