@@ -84,7 +84,7 @@ impl Binder {
             .borrow()
             .outer
             .clone()
-            .unwrap_or(Rc::new(RefCell::new(Bindings::new())));
+            .unwrap_or(Rc::new(RefCell::new(Bindings::default())));
         self.bindings = old_bindings;
         BoundStatement::Block(BoundBlockStatement::new(statements))
     }
@@ -93,10 +93,8 @@ impl Binder {
         let condition = self.bind_expression(statement.condition.clone());
         if condition.get_type() == Type::Boolean {
             let consequence = self.bind_statement(*statement.consequence);
-            let else_clause = match *statement.else_clause {
-                Some(statement) => Some(self.bind_statement(statement)),
-                None => None,
-            };
+            let else_clause =
+                (*statement.else_clause).map(|statement| self.bind_statement(statement));
             BoundStatement::If(BoundIfStatement::new(condition, consequence, else_clause))
         } else {
             self.diagnostic_bag.borrow_mut().invalid_expression_type(

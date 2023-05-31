@@ -76,12 +76,9 @@ impl BoundUnaryOperator {
                 Type::Boolean,
             ),
         ];
-        for operator in operators {
-            if operator.operator_kind == operator_kind && operator.right_type == right_type {
-                return Some(operator);
-            }
-        }
-        None
+        operators.into_iter().find(|operator| {
+            operator.operator_kind == operator_kind && operator.right_type == right_type
+        })
     }
 }
 
@@ -216,15 +213,11 @@ impl BoundBinaryOperator {
                 Type::Boolean,
             ),
         ];
-        for operator in operators {
-            if operator.operator_kind == operator_kind
+        operators.into_iter().find(|operator| {
+            operator.operator_kind == operator_kind
                 && operator.left_type == left_type
                 && operator.right_type == right_type
-            {
-                return Some(operator);
-            }
-        }
-        None
+        })
     }
 }
 

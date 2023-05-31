@@ -2,20 +2,13 @@ use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
 use crate::common::types::Object;
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct Bindings {
     pub(crate) outer: Option<Rc<RefCell<Bindings>>>,
     bindings: HashMap<String, Object>,
 }
 
 impl Bindings {
-    pub fn new() -> Self {
-        Self {
-            outer: None,
-            bindings: HashMap::new(),
-        }
-    }
-
     pub fn extend(with: Rc<RefCell<Bindings>>) -> Self {
         Self {
             outer: Some(with),
@@ -34,7 +27,7 @@ impl Bindings {
     }
 
     pub(crate) fn reset(&mut self, name: String, object: Object) {
-        if let Some(_) = self.bindings.get(&name) {
+        if self.bindings.get(&name).is_some() {
             self.bindings.insert(name, object);
         } else if let Some(outer) = &self.outer {
             outer.borrow_mut().reset(name, object)

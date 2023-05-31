@@ -10,7 +10,7 @@ use crab::{binding::bindings::Bindings, compilation::Compilation};
 
 fn main() {
     let mut source = String::new();
-    let mut bindings = Rc::new(RefCell::new(Bindings::new()));
+    let mut bindings = Rc::new(RefCell::new(Bindings::default()));
     let mut show_syntax_tree = false;
     let mut show_bound_tree = false;
     let mut stdout = stdout();
@@ -66,7 +66,7 @@ fn main() {
                     }
 
                     for diagnostic in &compilation_result.diagnostic_bag.borrow().diagnostics {
-                        let line = diagnostic.position.get_line(&source);
+                        let line = diagnostic.position.get_line(source);
                         eprintln!(
                             "{}",
                             format!("[error in line: {line}]").truecolor(255, 255, 0)

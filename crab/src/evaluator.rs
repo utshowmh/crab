@@ -47,7 +47,7 @@ impl Evaluator {
                 let object = self.evaluate_expression(&statement.expression);
                 self.bindings
                     .borrow_mut()
-                    .set(statement.name.clone(), object.clone());
+                    .set(statement.name, object.clone());
                 object
             }
             BoundStatement::Block(statement) => {
@@ -60,7 +60,7 @@ impl Evaluator {
                     .borrow()
                     .outer
                     .clone()
-                    .unwrap_or(Rc::new(RefCell::new(Bindings::new())));
+                    .unwrap_or(Rc::new(RefCell::new(Bindings::default())));
                 self.bindings = old_bindings;
                 Object::Unit
             }
