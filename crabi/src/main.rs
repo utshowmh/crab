@@ -66,10 +66,10 @@ fn main() {
                     }
 
                     for diagnostic in &compilation_result.diagnostic_bag.borrow().diagnostics {
-                        let (line, column) = diagnostic.position.get_line_and_column(&source);
+                        let line = diagnostic.position.get_line(&source);
                         eprintln!(
                             "{}",
-                            format!("[line: {line}, column: {column}]").truecolor(255, 255, 0)
+                            format!("[error in line: {line}]").truecolor(255, 255, 0)
                         );
                         eprintln!(
                             "{}",
@@ -83,7 +83,7 @@ fn main() {
                         for _ in diagnostic.position.start..diagnostic.position.end {
                             eprint!("{}", "^".truecolor(255, 255, 0));
                         }
-                        eprintln!("{}", " --- near here".truecolor(255, 255, 0));
+                        eprintln!("{}", " --- here".truecolor(255, 255, 0));
                     }
 
                     bindings = compilation_result.bindings;

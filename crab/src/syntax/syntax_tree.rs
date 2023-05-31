@@ -58,18 +58,25 @@ impl NameExpression {
 
 #[derive(Debug, Clone)]
 pub struct ParenthesizedExpression {
+    open_paren: Token,
     pub(crate) expression: Box<Expression>,
+    close_paren: Token,
 }
 
 impl ParenthesizedExpression {
-    pub(super) fn new(expression: Expression) -> Self {
+    pub(super) fn new(open_paren: Token, expression: Expression, close_paren: Token) -> Self {
         Self {
+            open_paren,
             expression: Box::new(expression),
+            close_paren,
         }
     }
 
     pub(crate) fn get_position(&self) -> Position {
-        self.expression.get_position()
+        Position::from(
+            self.open_paren.position.clone(),
+            self.close_paren.position.clone(),
+        )
     }
 }
 
@@ -88,7 +95,7 @@ impl UnaryExpression {
     }
 
     pub(crate) fn get_position(&self) -> Position {
-        self.operator.position.clone()
+        Position::from(self.operator.position.clone(), self.right.get_position())
     }
 }
 
@@ -109,7 +116,7 @@ impl BinaryExpression {
     }
 
     pub(crate) fn get_position(&self) -> Position {
-        self.operator.position.clone()
+        Position::from(self.left.get_position(), self.right.get_position())
     }
 }
 
@@ -128,7 +135,10 @@ impl AssignmentExpression {
     }
 
     pub(crate) fn get_position(&self) -> Position {
-        self.identifier.position.clone()
+        Position::from(
+            self.identifier.position.clone(),
+            self.expression.get_position(),
+        )
     }
 }
 

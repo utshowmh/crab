@@ -13,18 +13,21 @@ impl Position {
         Self { start, end }
     }
 
-    pub fn get_line_and_column(&self, source: &str) -> (usize, usize) {
+    pub(crate) fn from(start: Self, end: Self) -> Self {
+        Self {
+            start: start.start,
+            end: end.end,
+        }
+    }
+
+    pub fn get_line(&self, source: &str) -> usize {
         let mut line = 1;
-        let mut column = 0;
         for char in source.chars() {
             if char == '\n' {
                 line += 1;
-                column = 0;
-            } else {
-                column += 1;
             }
         }
-        (line, column)
+        line
     }
 }
 

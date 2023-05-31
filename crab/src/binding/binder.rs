@@ -154,7 +154,7 @@ impl Binder {
             ))
         } else {
             self.diagnostic_bag.borrow_mut().undefined_name(
-                expression.identifier.position.clone(),
+                expression.get_position(),
                 expression.identifier.lexeme.clone(),
             );
             BoundExpression::Literal(BoundLiteralExpression::new(
@@ -183,7 +183,7 @@ impl Binder {
             ))
         } else {
             self.diagnostic_bag.borrow_mut().invalid_unary_operator(
-                expression.operator.position.clone(),
+                expression.get_position(),
                 expression.operator.kind.clone(),
                 right.get_type(),
             );
@@ -210,7 +210,7 @@ impl Binder {
             ))
         } else {
             self.diagnostic_bag.borrow_mut().invalid_binary_operator(
-                expression.operator.position.clone(),
+                expression.get_position(),
                 expression.operator.kind.clone(),
                 left.get_type(),
                 right.get_type(),
@@ -238,7 +238,7 @@ impl Binder {
                 ))
             } else {
                 self.diagnostic_bag.borrow_mut().invalid_assignment(
-                    expression.identifier.position.clone(),
+                    expression.get_position(),
                     expression.identifier.lexeme.clone(),
                     object.get_type(),
                     bound_expression.get_type(),
@@ -250,7 +250,7 @@ impl Binder {
             }
         } else {
             self.diagnostic_bag.borrow_mut().undefined_name(
-                expression.identifier.position.clone(),
+                expression.get_position(),
                 expression.identifier.lexeme.clone(),
             );
             BoundExpression::Literal(BoundLiteralExpression::new(

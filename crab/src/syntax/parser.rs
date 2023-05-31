@@ -44,7 +44,7 @@ impl Parser {
             TokenKind::If => self.parse_if_statement(),
             TokenKind::OpenBrace => self.parse_block_statement(),
             TokenKind::Var => self.parse_var_statement(),
-            TokenKind::Print => self.parse_print_statment(),
+            TokenKind::Print => self.parse_print_statement(),
             _ => Statement::Expression(ExpressionStatement::new(self.parse_expression())),
         }
     }
@@ -92,7 +92,7 @@ impl Parser {
         Statement::Var(VarStatement::new(identifier, expression))
     }
 
-    fn parse_print_statment(&mut self) -> Statement {
+    fn parse_print_statement(&mut self) -> Statement {
         self.match_token(TokenKind::Print);
         Statement::Print(PrintStatement::new(self.parse_expression()))
     }
@@ -190,10 +190,14 @@ impl Parser {
     fn parse_primary_expression(&mut self) -> Expression {
         match self.peek(0).kind {
             TokenKind::OpenParen => {
-                self.next_token();
+                let open_paren = self.next_token();
                 let expression = self.parse_expression();
-                self.match_token(TokenKind::CloseParen);
-                Expression::Parenthesized(ParenthesizedExpression::new(expression))
+                let close_paren = self.match_token(TokenKind::CloseParen);
+                Expression::Parenthesized(ParenthesizedExpression::new(
+                    open_paren,
+                    expression,
+                    close_paren,
+                ))
             }
             TokenKind::True | TokenKind::False => {
                 let token = self.next_token();
