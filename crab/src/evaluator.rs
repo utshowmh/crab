@@ -74,6 +74,16 @@ impl Evaluator {
                     }
                 }
             }
+            BoundStatement::While(statement) => {
+                loop {
+                    let value = self.evaluate_expression(&statement.condition).as_boolean();
+                    if !value {
+                        break;
+                    }
+                    self.evaluate_statement(*statement.body.clone());
+                }
+                Object::Unit
+            }
         }
     }
 

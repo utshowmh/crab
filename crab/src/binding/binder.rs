@@ -8,6 +8,7 @@ use crate::{
     syntax::syntax_tree::{
         AssignmentExpression, BinaryExpression, BlockStatement, Expression, IfStatement,
         LiteralExpression, NameExpression, ParenthesizedExpression, Statement, UnaryExpression,
+        VarStatement, WhileStatement,
     },
 };
 
@@ -17,7 +18,7 @@ use super::{
         BoundAssignmentExpression, BoundBinaryExpression, BoundBinaryOperator, BoundBlockStatement,
         BoundExpression, BoundExpressionStatement, BoundIfStatement, BoundLiteralExpression,
         BoundPrintStatement, BoundStatement, BoundUnaryExpression, BoundUnaryOperator,
-        BoundVarStatement, BoundVariableExpression,
+        BoundVarStatement, BoundVariableExpression, BoundWhileStatement,
     },
 };
 
@@ -56,13 +57,11 @@ impl Binder {
             Statement::Var(statement) => self.bind_var_statement(statement),
             Statement::Block(statement) => self.bind_block_statement(statement),
             Statement::If(statement) => self.bind_if_statement(statement),
+            Statement::While(statement) => self.bind_while_statement(statement),
         }
     }
 
-    fn bind_var_statement(
-        &mut self,
-        statement: crate::syntax::syntax_tree::VarStatement,
-    ) -> BoundStatement {
+    fn bind_var_statement(&mut self, statement: VarStatement) -> BoundStatement {
         let bound_expression = self.bind_expression(statement.expression);
         self.bindings.borrow_mut().set(
             statement.identifier.lexeme.clone(),
@@ -99,6 +98,23 @@ impl Binder {
                 None => None,
             };
             BoundStatement::If(BoundIfStatement::new(condition, consequence, else_clause))
+        } else {
+            self.diagnostic_bag.borrow_mut().invalid_expression_type(
+                condition.get_position(),
+                Type::Boolean,
+                condition.get_type(),
+            );
+            BoundStatement::Expression(BoundExpressionStatement::new(BoundExpression::Literal(
+                BoundLiteralExpression::new(Object::Unit, statement.condition.get_position()),
+            )))
+        }
+    }
+
+    fn bind_while_statement(&mut self, statement: WhileStatement) -> BoundStatement {
+        let condition = self.bind_expression(statement.condition.clone());
+        if condition.get_type() == Type::Boolean {
+            let body = self.bind_statement(*statement.body);
+            BoundStatement::While(BoundWhileStatement::new(condition, body))
         } else {
             self.diagnostic_bag.borrow_mut().invalid_expression_type(
                 condition.get_position(),

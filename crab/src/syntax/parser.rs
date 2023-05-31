@@ -9,7 +9,7 @@ use super::{
     syntax_tree::{
         AssignmentExpression, BinaryExpression, BlockStatement, Expression, ExpressionStatement,
         IfStatement, LiteralExpression, NameExpression, ParenthesizedExpression, PrintStatement,
-        Statement, UnaryExpression, VarStatement,
+        Statement, UnaryExpression, VarStatement, WhileStatement,
     },
     token::{Token, TokenKind},
 };
@@ -40,12 +40,20 @@ impl Parser {
 
     fn parse_statement(&mut self) -> Statement {
         match self.peek(0).kind {
+            TokenKind::While => self.parse_while_statement(),
             TokenKind::If => self.parse_if_statement(),
             TokenKind::OpenBrace => self.parse_block_statement(),
             TokenKind::Var => self.parse_var_statement(),
             TokenKind::Print => self.parse_print_statment(),
             _ => Statement::Expression(ExpressionStatement::new(self.parse_expression())),
         }
+    }
+
+    fn parse_while_statement(&mut self) -> Statement {
+        self.match_token(TokenKind::While);
+        let condition = self.parse_expression();
+        let body = self.parse_statement();
+        Statement::While(WhileStatement::new(condition, body))
     }
 
     fn parse_if_statement(&mut self) -> Statement {

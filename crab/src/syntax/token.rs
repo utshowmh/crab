@@ -38,6 +38,7 @@ pub(crate) enum TokenKind {
     Var,
     If,
     Else,
+    While,
 
     Whitespace,
 
@@ -54,6 +55,7 @@ impl TokenKind {
             "var" => TokenKind::Var,
             "if" => TokenKind::If,
             "else" => TokenKind::Else,
+            "while" => TokenKind::While,
             _ => TokenKind::Identifier,
         }
     }
@@ -96,6 +98,7 @@ impl Display for TokenKind {
             TokenKind::Var => write!(f, "var"),
             TokenKind::If => write!(f, "if"),
             TokenKind::Else => write!(f, "else"),
+            TokenKind::While => write!(f, "while"),
 
             TokenKind::Whitespace => write!(f, "WHITESPACE"),
 

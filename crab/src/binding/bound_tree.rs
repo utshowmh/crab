@@ -397,6 +397,7 @@ pub enum BoundStatement {
     Var(BoundVarStatement),
     Block(BoundBlockStatement),
     If(BoundIfStatement),
+    While(BoundWhileStatement),
 }
 
 #[derive(Debug, Clone)]
@@ -464,6 +465,21 @@ impl BoundIfStatement {
             condition,
             consequence: Box::new(consequence),
             else_clause: Box::new(else_clause),
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct BoundWhileStatement {
+    pub(crate) condition: BoundExpression,
+    pub(crate) body: Box<BoundStatement>,
+}
+
+impl BoundWhileStatement {
+    pub(super) fn new(condition: BoundExpression, body: BoundStatement) -> Self {
+        Self {
+            condition,
+            body: Box::new(body),
         }
     }
 }

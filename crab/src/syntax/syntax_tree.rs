@@ -139,6 +139,7 @@ pub enum Statement {
     Var(VarStatement),
     Block(BlockStatement),
     If(IfStatement),
+    While(WhileStatement),
 }
 
 #[derive(Debug, Clone)]
@@ -206,6 +207,21 @@ impl IfStatement {
             condition,
             consequence: Box::new(consequence),
             else_clause: Box::new(else_clause),
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct WhileStatement {
+    pub(crate) condition: Expression,
+    pub(crate) body: Box<Statement>,
+}
+
+impl WhileStatement {
+    pub(super) fn new(condition: Expression, body: Statement) -> Self {
+        Self {
+            condition,
+            body: Box::new(body),
         }
     }
 }
