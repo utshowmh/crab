@@ -3,6 +3,7 @@ use std::{cell::RefCell, rc::Rc};
 use crate::{
     binding::{binder::Binder, bindings::Bindings, bound_tree::BoundStatement},
     common::{diagnostic::DiagnosticBag, types::Object},
+    environment::Environment,
     evaluator::Evaluator,
     syntax::{lexer::Lexer, parser::Parser, syntax_tree::Statement},
 };
@@ -10,7 +11,11 @@ use crate::{
 pub struct Compilation;
 
 impl Compilation {
-    pub fn evaluate(source: &str, bindings: Rc<RefCell<Bindings>>) -> EvaluationResult {
+    pub fn evaluate(
+        source: &str,
+        bindings: Rc<RefCell<Bindings>>,
+        environment: Rc<RefCell<Environment>>,
+    ) -> EvaluationResult {
         let diagnostic_bag = Rc::new(RefCell::new(DiagnosticBag::new()));
         let mut lexer = Lexer::new(source, Rc::clone(&diagnostic_bag));
         let tokens = lexer.lex();
@@ -18,11 +23,12 @@ impl Compilation {
         let program = parser.parse();
         let mut binder = Binder::new(Rc::clone(&bindings), Rc::clone(&diagnostic_bag));
         let bound_program = binder.bind(program.clone());
-        let mut evaluator = Evaluator::new(bound_program.clone(), Rc::clone(&bindings));
+        let mut evaluator = Evaluator::new(bound_program.clone(), Rc::clone(&environment));
         let evaluated_result = evaluator.evaluate();
         EvaluationResult {
             diagnostic_bag: Rc::clone(&diagnostic_bag),
             bindings,
+            environment,
             program,
             bound_program,
             evaluated_result,
@@ -33,6 +39,7 @@ impl Compilation {
 pub struct EvaluationResult {
     pub diagnostic_bag: Rc<RefCell<DiagnosticBag>>,
     pub bindings: Rc<RefCell<Bindings>>,
+    pub environment: Rc<RefCell<Environment>>,
     pub program: Vec<Statement>,
     pub bound_program: Vec<BoundStatement>,
     pub evaluated_result: Object,

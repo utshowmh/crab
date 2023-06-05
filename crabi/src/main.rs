@@ -6,11 +6,12 @@ use std::{
 
 use colored::Colorize;
 
-use crab::{binding::bindings::Bindings, compilation::Compilation};
+use crab::{binding::bindings::Bindings, compilation::Compilation, environment::Environment};
 
 fn main() {
     let mut source = String::new();
     let mut bindings = Rc::new(RefCell::new(Bindings::default()));
+    let mut environment = Rc::new(RefCell::new(Environment::default()));
     let mut show_syntax_tree = false;
     let mut show_bound_tree = false;
     let mut stdout = stdout();
@@ -35,7 +36,11 @@ fn main() {
 
             source => {
                 if !source.is_empty() {
-                    let compilation_result = Compilation::evaluate(source, Rc::clone(&bindings));
+                    let compilation_result = Compilation::evaluate(
+                        source,
+                        Rc::clone(&bindings),
+                        Rc::clone(&environment),
+                    );
 
                     if compilation_result
                         .diagnostic_bag
@@ -87,6 +92,7 @@ fn main() {
                     }
 
                     bindings = compilation_result.bindings;
+                    environment = compilation_result.environment;
                 }
             }
         };

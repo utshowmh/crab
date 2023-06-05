@@ -1,24 +1,22 @@
 use std::{cell::RefCell, rc::Rc};
 
 use crate::{
-    binding::{
-        bindings::Bindings,
-        bound_tree::{
-            BoundBinaryOperationKind, BoundExpression, BoundStatement, BoundUnaryOperationKind,
-        },
+    binding::bound_tree::{
+        BoundBinaryOperationKind, BoundExpression, BoundStatement, BoundUnaryOperationKind,
     },
     common::types::Object,
+    environment::Environment,
 };
 
 pub(crate) struct Evaluator {
     bound_statements: Vec<BoundStatement>,
-    pub(super) bindings: Rc<RefCell<Bindings>>,
+    pub(super) bindings: Rc<RefCell<Environment>>,
 }
 
 impl Evaluator {
     pub(crate) fn new(
         bound_statements: Vec<BoundStatement>,
-        bindings: Rc<RefCell<Bindings>>,
+        bindings: Rc<RefCell<Environment>>,
     ) -> Self {
         Self {
             bound_statements,
@@ -51,7 +49,8 @@ impl Evaluator {
                 object
             }
             BoundStatement::Block(statement) => {
-                self.bindings = Rc::new(RefCell::new(Bindings::extend(Rc::clone(&self.bindings))));
+                self.bindings =
+                    Rc::new(RefCell::new(Environment::extend(Rc::clone(&self.bindings))));
                 for statement in statement.statements {
                     self.evaluate_statement(statement);
                 }
@@ -60,7 +59,7 @@ impl Evaluator {
                     .borrow()
                     .outer
                     .clone()
-                    .unwrap_or(Rc::new(RefCell::new(Bindings::default())));
+                    .unwrap_or(Rc::new(RefCell::new(Environment::default())));
                 self.bindings = old_bindings;
                 Object::Unit
             }

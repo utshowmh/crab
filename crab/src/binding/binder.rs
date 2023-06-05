@@ -66,7 +66,7 @@ impl Binder {
         let bound_expression = self.bind_expression(statement.expression);
         self.bindings.borrow_mut().set(
             statement.identifier.lexeme.clone(),
-            bound_expression.get_type().default(),
+            bound_expression.get_type(),
         );
         BoundStatement::Var(BoundVarStatement::new(
             statement.identifier.lexeme,
@@ -80,12 +80,7 @@ impl Binder {
         for statement in statement.statements {
             statements.push(self.bind_statement(statement));
         }
-        let old_bindings = self
-            .bindings
-            .borrow()
-            .outer
-            .clone()
-            .unwrap_or(Rc::new(RefCell::new(Bindings::default())));
+        let old_bindings = self.bindings.borrow().outer.clone().unwrap();
         self.bindings = old_bindings;
         BoundStatement::Block(BoundBlockStatement::new(statements))
     }
@@ -133,7 +128,7 @@ impl Binder {
             (Type::Number, Type::Number) => {
                 self.bindings
                     .borrow_mut()
-                    .set(statement.identifier.lexeme.clone(), Type::Number.default());
+                    .set(statement.identifier.lexeme.clone(), Type::Number);
                 let body = self.bind_statement(*statement.body);
                 BoundStatement::For(BoundForStatement::new(
                     statement.identifier.lexeme,
@@ -179,10 +174,10 @@ impl Binder {
     }
 
     fn bind_name_expression(&mut self, expression: NameExpression) -> BoundExpression {
-        if let Some(value) = self.bindings.borrow().get(&expression.identifier.lexeme) {
+        if let Some(typ) = self.bindings.borrow().get(&expression.identifier.lexeme) {
             BoundExpression::Variable(BoundVariableExpression::new(
                 expression.identifier.lexeme.clone(),
-                value.get_type(),
+                typ,
                 expression.get_position(),
             ))
         } else {
@@ -257,12 +252,12 @@ impl Binder {
 
     fn bind_assignment_expression(&mut self, expression: AssignmentExpression) -> BoundExpression {
         let bound_expression = self.bind_expression(*expression.expression.clone());
-        let object = self.bindings.borrow().get(&expression.identifier.lexeme);
-        if let Some(object) = object {
-            if object.get_type() == bound_expression.get_type() {
+        let typ = self.bindings.borrow().get(&expression.identifier.lexeme);
+        if let Some(typ) = typ {
+            if typ == bound_expression.get_type() {
                 self.bindings.borrow_mut().reset(
                     expression.identifier.lexeme.clone(),
-                    bound_expression.get_type().default(),
+                    bound_expression.get_type(),
                 );
                 BoundExpression::Assignment(BoundAssignmentExpression::new(
                     expression.identifier.lexeme.clone(),
@@ -273,7 +268,7 @@ impl Binder {
                 self.diagnostic_bag.borrow_mut().invalid_assignment(
                     expression.get_position(),
                     expression.identifier.lexeme.clone(),
-                    object.get_type(),
+                    typ,
                     bound_expression.get_type(),
                 );
                 BoundExpression::Literal(BoundLiteralExpression::new(

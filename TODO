@@ -1,0 +1,2 @@
+Fix Bug:
+  - In the BlockStatement, when assigning existing variable, variable access gives 0.

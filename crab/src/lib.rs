@@ -3,4 +3,5 @@ pub(crate) mod evaluator;
 
 pub mod binding;
 pub mod compilation;
+pub mod environment;
 pub mod syntax;
