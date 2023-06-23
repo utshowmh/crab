@@ -5,8 +5,9 @@ use crate::{
         BoundBinaryOperationKind, BoundExpression, BoundStatement, BoundUnaryOperationKind,
     },
     common::types::Object,
-    environment::Environment,
 };
+
+use super::environment::Environment;
 
 pub(crate) struct Evaluator {
     bound_statements: Vec<BoundStatement>,

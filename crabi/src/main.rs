@@ -6,7 +6,9 @@ use std::{
 
 use colored::Colorize;
 
-use crab::{binding::bindings::Bindings, compilation::Compilation, environment::Environment};
+use crab::{
+    binding::bindings::Bindings, compilation::Compilation, interpreter::environment::Environment,
+};
 
 fn main() {
     let mut source = String::new();

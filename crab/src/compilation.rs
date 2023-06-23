@@ -3,8 +3,8 @@ use std::{cell::RefCell, rc::Rc};
 use crate::{
     binding::{binder::Binder, bindings::Bindings, bound_tree::BoundStatement},
     common::{diagnostic::DiagnosticBag, types::Object},
-    environment::Environment,
-    evaluator::Evaluator,
+    interpreter::environment::Environment,
+    interpreter::evaluator::Evaluator,
     syntax::{lexer::Lexer, parser::Parser, syntax_tree::Statement},
 };
 
