@@ -1,0 +1,12 @@
+var previous = 0
+var current = 1
+var n = 10
+
+while n > 1 {
+    var t = current
+    current = previous + current
+    previous = t
+    n = n - 1
+}
+
+print current

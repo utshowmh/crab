@@ -3,7 +3,10 @@ mod evaluator;
 
 use std::{
     cell::RefCell,
+    env::args,
+    fs::read_to_string,
     io::{stdin, stdout, Write},
+    process::exit,
     rc::Rc,
 };
 
@@ -13,6 +16,18 @@ use crate::{environment::Environment, evaluator::Evaluator};
 use crab::{binding::bindings::Bindings, compilation::Compilation};
 
 fn main() {
+    let args: Vec<String> = args().collect();
+    match args.len() {
+        1 => run_repl(),
+        2 => run_file(&args[1]),
+        _ => {
+            eprintln!("Invalid number of arguments.");
+            exit(65);
+        }
+    }
+}
+
+fn run_repl() {
     let mut source = String::new();
     let mut bindings = Rc::new(RefCell::new(Bindings::default()));
     let mut environment = Rc::new(RefCell::new(Environment::default()));
@@ -94,5 +109,37 @@ fn main() {
             }
         };
         source.clear();
+    }
+}
+
+fn run_file(path: &str) {
+    let source = read_to_string(path).unwrap();
+    let compilation = Compilation::compile(&source, Rc::new(RefCell::new(Bindings::default())));
+    if compilation.diagnostic_bag.borrow().diagnostics.is_empty() {
+        let mut evaluator = Evaluator::new(
+            compilation.bound_program.clone(),
+            Rc::new(RefCell::new(Environment::default())),
+        );
+        evaluator.evaluate();
+    }
+    for diagnostic in &compilation.diagnostic_bag.borrow().diagnostics {
+        let line = diagnostic.position.get_line(&source);
+        eprintln!(
+            "{}",
+            format!("[error in line: {line}]").truecolor(255, 255, 0)
+        );
+        eprintln!(
+            "{}",
+            format!("Error: {}.", diagnostic.message).truecolor(255, 0, 0)
+        );
+        eprintln!(
+            "\t{}",
+            &source[diagnostic.position.start..diagnostic.position.end]
+        );
+        eprint!("\t");
+        for _ in diagnostic.position.start..diagnostic.position.end {
+            eprint!("{}", "^".truecolor(255, 255, 0));
+        }
+        eprintln!("{}", " --- here".truecolor(255, 255, 0));
     }
 }

@@ -1,0 +1,6 @@
+var factorial = 1
+
+for i = 1 to 5
+    factorial = factorial * i
+
+print factorial
