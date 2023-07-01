@@ -2,45 +2,31 @@ use std::{cell::RefCell, rc::Rc};
 
 use crate::{
     binding::{binder::Binder, bindings::Bindings, bound_tree::BoundStatement},
-    common::{diagnostic::DiagnosticBag, types::Object},
-    interpreter::environment::Environment,
-    interpreter::evaluator::Evaluator,
+    common::diagnostic::DiagnosticBag,
     syntax::{lexer::Lexer, parser::Parser, syntax_tree::Statement},
 };
 
-pub struct Compilation;
+pub struct Compilation {
+    pub diagnostic_bag: Rc<RefCell<DiagnosticBag>>,
+    pub bindings: Rc<RefCell<Bindings>>,
+    pub unbound_program: Vec<Statement>,
+    pub bound_program: Vec<BoundStatement>,
+}
 
 impl Compilation {
-    pub fn evaluate(
-        source: &str,
-        bindings: Rc<RefCell<Bindings>>,
-        environment: Rc<RefCell<Environment>>,
-    ) -> EvaluationResult {
+    pub fn compile(source: &str, bindings: Rc<RefCell<Bindings>>) -> Self {
         let diagnostic_bag = Rc::new(RefCell::new(DiagnosticBag::new()));
         let mut lexer = Lexer::new(source, Rc::clone(&diagnostic_bag));
         let tokens = lexer.lex();
         let mut parser = Parser::new(tokens, Rc::clone(&diagnostic_bag));
-        let program = parser.parse();
+        let unbound_program = parser.parse();
         let mut binder = Binder::new(Rc::clone(&bindings), Rc::clone(&diagnostic_bag));
-        let bound_program = binder.bind(program.clone());
-        let mut evaluator = Evaluator::new(bound_program.clone(), Rc::clone(&environment));
-        let evaluated_result = evaluator.evaluate();
-        EvaluationResult {
+        let bound_program = binder.bind(unbound_program.clone());
+        Self {
             diagnostic_bag: Rc::clone(&diagnostic_bag),
             bindings,
-            environment,
-            program,
+            unbound_program,
             bound_program,
-            evaluated_result,
         }
     }
-}
-
-pub struct EvaluationResult {
-    pub diagnostic_bag: Rc<RefCell<DiagnosticBag>>,
-    pub bindings: Rc<RefCell<Bindings>>,
-    pub environment: Rc<RefCell<Environment>>,
-    pub program: Vec<Statement>,
-    pub bound_program: Vec<BoundStatement>,
-    pub evaluated_result: Object,
 }

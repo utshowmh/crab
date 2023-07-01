@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::{
+use crab::{
     binding::bound_tree::{
         BoundBinaryOperationKind, BoundExpression, BoundStatement, BoundUnaryOperationKind,
     },

@@ -1,15 +1,15 @@
 use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
-use crate::common::types::Object;
+use crab::common::types::Object;
 
 #[derive(Debug, Default)]
-pub struct Environment {
+pub(crate) struct Environment {
     pub(crate) outer: Option<Rc<RefCell<Environment>>>,
     bindings: HashMap<String, Object>,
 }
 
 impl Environment {
-    pub fn extend(with: Rc<RefCell<Environment>>) -> Self {
+    pub(crate) fn extend(with: Rc<RefCell<Environment>>) -> Self {
         Self {
             outer: Some(with),
             bindings: HashMap::new(),

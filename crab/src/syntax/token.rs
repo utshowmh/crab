@@ -3,7 +3,7 @@ use std::fmt::Display;
 use crate::common::diagnostic::Position;
 
 #[derive(Debug, Clone, PartialEq)]
-pub(crate) enum TokenKind {
+pub enum TokenKind {
     Plus,
     Minus,
     Star,

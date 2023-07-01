@@ -4,7 +4,7 @@ type Number = i32;
 type Boolean = bool;
 
 #[derive(Debug, PartialEq, Clone)]
-pub(crate) enum Type {
+pub enum Type {
     Unit,
     Number,
     Boolean,
@@ -46,14 +46,14 @@ impl Object {
         }
     }
 
-    pub(crate) fn as_number(&self) -> Number {
+    pub fn as_number(&self) -> Number {
         match self {
             Object::Number(n) => *n,
             o => panic!("Can not convert {o} to {}", Type::Number),
         }
     }
 
-    pub(crate) fn as_boolean(&self) -> Boolean {
+    pub fn as_boolean(&self) -> Boolean {
         match self {
             Object::Boolean(b) => *b,
             o => panic!("Can not convert {o} to {}", Type::Boolean),

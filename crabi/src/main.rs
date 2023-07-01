@@ -1,3 +1,6 @@
+mod environment;
+mod evaluator;
+
 use std::{
     cell::RefCell,
     io::{stdin, stdout, Write},
@@ -6,9 +9,8 @@ use std::{
 
 use colored::Colorize;
 
-use crab::{
-    binding::bindings::Bindings, compilation::Compilation, interpreter::environment::Environment,
-};
+use crate::{environment::Environment, evaluator::Evaluator};
+use crab::{binding::bindings::Bindings, compilation::Compilation};
 
 fn main() {
     let mut source = String::new();
@@ -38,41 +40,35 @@ fn main() {
 
             source => {
                 if !source.is_empty() {
-                    let compilation_result = Compilation::evaluate(
-                        source,
-                        Rc::clone(&bindings),
-                        Rc::clone(&environment),
-                    );
+                    let compilation = Compilation::compile(source, Rc::clone(&bindings));
 
-                    if compilation_result
-                        .diagnostic_bag
-                        .borrow()
-                        .diagnostics
-                        .is_empty()
-                    {
+                    if compilation.diagnostic_bag.borrow().diagnostics.is_empty() {
+                        let mut evaluator = Evaluator::new(
+                            compilation.bound_program.clone(),
+                            Rc::clone(&environment),
+                        );
                         println!(
                             "{}",
-                            format!("{}", compilation_result.evaluated_result)
-                                .truecolor(255, 255, 255)
-                        )
+                            format!("{}", evaluator.evaluate()).truecolor(255, 255, 255)
+                        );
+                        environment = evaluator.bindings;
                     }
 
                     if show_syntax_tree {
                         println!(
                             "{}",
-                            format!("{:#?}", compilation_result.program).truecolor(155, 155, 155)
+                            format!("{:#?}", compilation.unbound_program).truecolor(155, 155, 155)
                         );
                     }
 
                     if show_bound_tree {
                         println!(
                             "{}",
-                            format!("{:#?}", compilation_result.bound_program)
-                                .truecolor(155, 155, 155)
+                            format!("{:#?}", compilation.bound_program).truecolor(155, 155, 155)
                         );
                     }
 
-                    for diagnostic in &compilation_result.diagnostic_bag.borrow().diagnostics {
+                    for diagnostic in &compilation.diagnostic_bag.borrow().diagnostics {
                         let line = diagnostic.position.get_line(source);
                         eprintln!(
                             "{}",
@@ -93,8 +89,7 @@ fn main() {
                         eprintln!("{}", " --- here".truecolor(255, 255, 0));
                     }
 
-                    bindings = compilation_result.bindings;
-                    environment = compilation_result.environment;
+                    bindings = compilation.bindings;
                 }
             }
         };

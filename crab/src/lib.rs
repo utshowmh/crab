@@ -1,6 +1,4 @@
-pub(crate) mod common;
-
 pub mod binding;
+pub mod common;
 pub mod compilation;
-pub mod interpreter;
 pub mod syntax;

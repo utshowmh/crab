@@ -7,7 +7,7 @@ use crate::{
 };
 
 #[derive(Debug, Clone)]
-pub(crate) enum BoundBinaryOperationKind {
+pub enum BoundBinaryOperationKind {
     Addition,
     Subtraction,
     Multiplication,
@@ -26,16 +26,16 @@ pub(crate) enum BoundBinaryOperationKind {
 }
 
 #[derive(Debug, Clone)]
-pub(crate) enum BoundUnaryOperationKind {
+pub enum BoundUnaryOperationKind {
     Identity,
     Negation,
     LogicalNegation,
 }
 
 #[derive(Debug, Clone)]
-pub(crate) struct BoundUnaryOperator {
+pub struct BoundUnaryOperator {
     pub(super) operator_kind: TokenKind,
-    pub(crate) operation_kind: BoundUnaryOperationKind,
+    pub operation_kind: BoundUnaryOperationKind,
     pub(super) right_type: Type,
     pub(super) result_type: Type,
 }
@@ -55,7 +55,7 @@ impl BoundUnaryOperator {
         }
     }
 
-    pub(crate) fn bind(operator_kind: TokenKind, right_type: Type) -> Option<Self> {
+    pub fn bind(operator_kind: TokenKind, right_type: Type) -> Option<Self> {
         let operators = vec![
             BoundUnaryOperator::new(
                 TokenKind::Plus,
@@ -83,9 +83,9 @@ impl BoundUnaryOperator {
 }
 
 #[derive(Debug, Clone)]
-pub(crate) struct BoundBinaryOperator {
+pub struct BoundBinaryOperator {
     pub(super) operator_kind: TokenKind,
-    pub(crate) operation_kind: BoundBinaryOperationKind,
+    pub operation_kind: BoundBinaryOperationKind,
     pub(super) left_type: Type,
     pub(super) right_type: Type,
     pub(super) result_type: Type,
@@ -108,11 +108,7 @@ impl BoundBinaryOperator {
         }
     }
 
-    pub(crate) fn bind(
-        operator_kind: TokenKind,
-        left_type: Type,
-        right_type: Type,
-    ) -> Option<Self> {
+    pub fn bind(operator_kind: TokenKind, left_type: Type, right_type: Type) -> Option<Self> {
         let operators = vec![
             BoundBinaryOperator::new(
                 TokenKind::Plus,
@@ -222,7 +218,7 @@ impl BoundBinaryOperator {
 }
 
 #[derive(Debug, Clone)]
-pub(crate) enum BoundExpression {
+pub enum BoundExpression {
     Literal(BoundLiteralExpression),
     Variable(BoundVariableExpression),
     Unary(BoundUnaryExpression),
@@ -231,7 +227,7 @@ pub(crate) enum BoundExpression {
 }
 
 impl BoundExpression {
-    pub(crate) fn get_type(&self) -> Type {
+    pub fn get_type(&self) -> Type {
         match self {
             BoundExpression::Literal(expression) => expression.get_type(),
             BoundExpression::Variable(expression) => expression.get_type(),
@@ -241,7 +237,7 @@ impl BoundExpression {
         }
     }
 
-    pub(crate) fn get_position(&self) -> Position {
+    pub fn get_position(&self) -> Position {
         match self {
             BoundExpression::Literal(expression) => expression.get_position(),
             BoundExpression::Variable(expression) => expression.get_position(),
@@ -253,8 +249,8 @@ impl BoundExpression {
 }
 
 #[derive(Debug, Clone)]
-pub(crate) struct BoundLiteralExpression {
-    pub(crate) value: Object,
+pub struct BoundLiteralExpression {
+    pub value: Object,
     position: Position,
 }
 
@@ -273,9 +269,9 @@ impl BoundLiteralExpression {
 }
 
 #[derive(Debug, Clone)]
-pub(crate) struct BoundVariableExpression {
-    pub(crate) name: String,
-    pub(crate) value_type: Type,
+pub struct BoundVariableExpression {
+    pub name: String,
+    pub value_type: Type,
     position: Position,
 }
 
@@ -298,9 +294,9 @@ impl BoundVariableExpression {
 }
 
 #[derive(Debug, Clone)]
-pub(crate) struct BoundUnaryExpression {
-    pub(crate) operator: BoundUnaryOperator,
-    pub(crate) right: Box<BoundExpression>,
+pub struct BoundUnaryExpression {
+    pub operator: BoundUnaryOperator,
+    pub right: Box<BoundExpression>,
     position: Position,
 }
 
@@ -327,10 +323,10 @@ impl BoundUnaryExpression {
 }
 
 #[derive(Debug, Clone)]
-pub(crate) struct BoundBinaryExpression {
-    pub(crate) left: Box<BoundExpression>,
-    pub(crate) operator: BoundBinaryOperator,
-    pub(crate) right: Box<BoundExpression>,
+pub struct BoundBinaryExpression {
+    pub left: Box<BoundExpression>,
+    pub operator: BoundBinaryOperator,
+    pub right: Box<BoundExpression>,
     position: Position,
 }
 
@@ -359,14 +355,14 @@ impl BoundBinaryExpression {
 }
 
 #[derive(Debug, Clone)]
-pub(crate) struct BoundAssignmentExpression {
-    pub(crate) name: String,
-    pub(crate) expression: Box<BoundExpression>,
+pub struct BoundAssignmentExpression {
+    pub name: String,
+    pub expression: Box<BoundExpression>,
     position: Position,
 }
 
 impl BoundAssignmentExpression {
-    pub(crate) fn new(name: String, expression: BoundExpression, position: Position) -> Self {
+    pub fn new(name: String, expression: BoundExpression, position: Position) -> Self {
         Self {
             name,
             expression: Box::new(expression),
@@ -374,7 +370,7 @@ impl BoundAssignmentExpression {
         }
     }
 
-    pub(crate) fn get_type(&self) -> Type {
+    pub fn get_type(&self) -> Type {
         self.expression.get_type()
     }
 
@@ -396,34 +392,34 @@ pub enum BoundStatement {
 
 #[derive(Debug, Clone)]
 pub struct BoundExpressionStatement {
-    pub(crate) expression: BoundExpression,
+    pub expression: BoundExpression,
 }
 
 impl BoundExpressionStatement {
-    pub(crate) fn new(expression: BoundExpression) -> Self {
+    pub fn new(expression: BoundExpression) -> Self {
         Self { expression }
     }
 }
 
 #[derive(Debug, Clone)]
 pub struct BoundPrintStatement {
-    pub(crate) expression: BoundExpression,
+    pub expression: BoundExpression,
 }
 
 impl BoundPrintStatement {
-    pub(crate) fn new(expression: BoundExpression) -> Self {
+    pub fn new(expression: BoundExpression) -> Self {
         Self { expression }
     }
 }
 
 #[derive(Debug, Clone)]
 pub struct BoundVarStatement {
-    pub(crate) name: String,
-    pub(crate) expression: Box<BoundExpression>,
+    pub name: String,
+    pub expression: Box<BoundExpression>,
 }
 
 impl BoundVarStatement {
-    pub(crate) fn new(name: String, expression: BoundExpression) -> Self {
+    pub fn new(name: String, expression: BoundExpression) -> Self {
         Self {
             name,
             expression: Box::new(expression),
@@ -433,7 +429,7 @@ impl BoundVarStatement {
 
 #[derive(Debug, Clone)]
 pub struct BoundBlockStatement {
-    pub(crate) statements: Vec<BoundStatement>,
+    pub statements: Vec<BoundStatement>,
 }
 
 impl BoundBlockStatement {
@@ -444,9 +440,9 @@ impl BoundBlockStatement {
 
 #[derive(Debug, Clone)]
 pub struct BoundIfStatement {
-    pub(crate) condition: BoundExpression,
-    pub(crate) consequence: Box<BoundStatement>,
-    pub(crate) else_clause: Box<Option<BoundStatement>>,
+    pub condition: BoundExpression,
+    pub consequence: Box<BoundStatement>,
+    pub else_clause: Box<Option<BoundStatement>>,
 }
 
 impl BoundIfStatement {
@@ -465,8 +461,8 @@ impl BoundIfStatement {
 
 #[derive(Debug, Clone)]
 pub struct BoundWhileStatement {
-    pub(crate) condition: BoundExpression,
-    pub(crate) body: Box<BoundStatement>,
+    pub condition: BoundExpression,
+    pub body: Box<BoundStatement>,
 }
 
 impl BoundWhileStatement {
@@ -480,10 +476,10 @@ impl BoundWhileStatement {
 
 #[derive(Debug, Clone)]
 pub struct BoundForStatement {
-    pub(crate) identifier: String,
-    pub(crate) lower_bound: BoundExpression,
-    pub(crate) upper_bound: BoundExpression,
-    pub(crate) body: Box<BoundStatement>,
+    pub identifier: String,
+    pub lower_bound: BoundExpression,
+    pub upper_bound: BoundExpression,
+    pub body: Box<BoundStatement>,
 }
 
 impl BoundForStatement {
