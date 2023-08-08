@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use crate::{
     common::{
         diagnostic::Position,
@@ -25,11 +27,40 @@ pub enum BoundBinaryOperationKind {
     Equal,
 }
 
+impl Display for BoundBinaryOperationKind {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            BoundBinaryOperationKind::Addition => write!(f, "+"),
+            BoundBinaryOperationKind::Subtraction => write!(f, "-"),
+            BoundBinaryOperationKind::Multiplication => write!(f, "*"),
+            BoundBinaryOperationKind::Division => write!(f, "/"),
+            BoundBinaryOperationKind::Greater => write!(f, ">"),
+            BoundBinaryOperationKind::Lesser => write!(f, "<"),
+            BoundBinaryOperationKind::GreaterEqual => write!(f, ">="),
+            BoundBinaryOperationKind::LesserEqual => write!(f, "<="),
+            BoundBinaryOperationKind::LogicalAnd => write!(f, "&&"),
+            BoundBinaryOperationKind::LogicalOr => write!(f, "||"),
+            BoundBinaryOperationKind::NotEqual => write!(f, "!="),
+            BoundBinaryOperationKind::Equal => write!(f, "=="),
+        }
+    }
+}
+
 #[derive(Debug, Clone)]
 pub enum BoundUnaryOperationKind {
     Identity,
     Negation,
     LogicalNegation,
+}
+
+impl Display for BoundUnaryOperationKind {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            BoundUnaryOperationKind::Identity => write!(f, "+"),
+            BoundUnaryOperationKind::Negation => write!(f, "-"),
+            BoundUnaryOperationKind::LogicalNegation => write!(f, "!"),
+        }
+    }
 }
 
 #[derive(Debug, Clone)]
