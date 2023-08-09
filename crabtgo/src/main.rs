@@ -14,6 +14,8 @@ use colored::Colorize;
 use crate::compiler::Compiler;
 use crab::{binding::bindings::Bindings, compilation::Compilation};
 
+const FILE_EXTENSION: &str = ".crab";
+
 fn main() {
     let args: Vec<String> = args().collect();
     match args.len() {
@@ -31,7 +33,7 @@ fn run_file(path: &str) {
     if compilation.diagnostic_bag.borrow().diagnostics.is_empty() {
         let mut evaluator = Compiler::new(compilation.bound_program.clone());
         let compiled_code = evaluator.compile();
-        let output_path: Vec<&str> = path.split(".crab").collect();
+        let output_path: Vec<&str> = path.split(FILE_EXTENSION).collect();
         let output_path = output_path[0];
         let mut file = File::create(format!("{output_path}.go")).unwrap();
         file.write_all(&compiled_code.as_bytes()).unwrap();

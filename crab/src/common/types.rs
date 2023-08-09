@@ -8,6 +8,7 @@ pub enum Type {
     Unit,
     Number,
     Boolean,
+    String,
 }
 
 impl Display for Type {
@@ -16,6 +17,7 @@ impl Display for Type {
             Type::Unit => write!(f, "{self:?}"),
             Type::Number => write!(f, "{self:?}"),
             Type::Boolean => write!(f, "{self:?}"),
+            Type::String => write!(f, "{self:?}"),
         }
     }
 }
@@ -26,6 +28,7 @@ impl Display for Type {
 //             Type::Unit => Object::Unit,
 //             Type::Number => Object::Number(0),
 //             Type::Boolean => Object::Boolean(false),
+//              Type::String => Object::String(String::from("")),
 //         }
 //     }
 // }
@@ -35,6 +38,7 @@ pub enum Object {
     Unit,
     Number(Number),
     Boolean(Boolean),
+    String(String),
 }
 
 impl Object {
@@ -43,6 +47,7 @@ impl Object {
             Object::Unit => Type::Unit,
             Object::Number(_) => Type::Number,
             Object::Boolean(_) => Type::Boolean,
+            Object::String(_) => Type::String,
         }
     }
 
@@ -67,6 +72,7 @@ impl Display for Object {
             Object::Unit => write!(f, "()"),
             Object::Number(n) => write!(f, "{n}"),
             Object::Boolean(b) => write!(f, "{b}"),
+            Object::String(s) => write!(f, "{s}"),
         }
     }
 }

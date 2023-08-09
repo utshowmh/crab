@@ -184,6 +184,20 @@ impl Lexer {
                     Position::new(self.current - 1, self.current),
                 ),
 
+                '"' => {
+                    let start = self.current - 1;
+                    self.advance();
+                    while self.peek(0) != '"' {
+                        self.advance();
+                    }
+                    self.advance();
+                    Token::new(
+                        TokenKind::String,
+                        self.source[start + 1..self.current - 1].iter().collect(),
+                        Position::new(start, self.current),
+                    )
+                }
+
                 char => {
                     if char.is_ascii_whitespace() {
                         let start = self.current - 1;

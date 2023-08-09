@@ -1,4 +1,7 @@
-use crab::binding::bound_tree::{BoundExpression, BoundStatement};
+use crab::{
+    binding::bound_tree::{BoundExpression, BoundStatement},
+    common::types::Object,
+};
 
 pub(crate) struct Compiler {
     bound_statements: Vec<BoundStatement>,
@@ -87,7 +90,13 @@ impl Compiler {
         let mut compiled_expression = String::new();
         match bound_expression {
             BoundExpression::Literal(expression) => {
-                compiled_expression.push_str(&format!("{}", expression.value));
+                let value = match &expression.value {
+                    Object::Unit => "nil".to_string(),
+                    Object::Number(v) => format!("{v}"),
+                    Object::Boolean(v) => format!("{v}"),
+                    Object::String(v) => format!("\"{v}\""),
+                };
+                compiled_expression.push_str(&format!("{}", value));
             }
             BoundExpression::Variable(expression) => {
                 compiled_expression.push_str(&format!("{}", expression.name))

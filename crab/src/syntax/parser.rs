@@ -232,6 +232,13 @@ impl Parser {
                     token.position,
                 ))
             }
+            TokenKind::String => {
+                let token = self.next_token();
+                Expression::Literal(LiteralExpression::new(
+                    Object::String(token.lexeme),
+                    token.position,
+                ))
+            }
             _ => {
                 let identifier = self.match_token(TokenKind::Identifier);
                 Expression::Name(NameExpression::new(identifier))

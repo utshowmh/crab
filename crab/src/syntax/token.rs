@@ -29,7 +29,7 @@ pub enum TokenKind {
     CloseBrace,
 
     Number,
-
+    String,
     True,
     False,
     Identifier,
@@ -93,7 +93,7 @@ impl Display for TokenKind {
             TokenKind::CloseBrace => write!(f, "}}"),
 
             TokenKind::Number => write!(f, "NUMBER"),
-
+            TokenKind::String => write!(f, "STRING"),
             TokenKind::True => write!(f, "true"),
             TokenKind::False => write!(f, "false"),
             TokenKind::Identifier => write!(f, "IDENTIFIER"),
