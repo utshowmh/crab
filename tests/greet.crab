@@ -1,0 +1,4 @@
+var greet = "hello"
+var name = "utsho"
+
+print greet + ", " + name + "!"

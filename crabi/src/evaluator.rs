@@ -4,7 +4,7 @@ use crab::{
     binding::bound_tree::{
         BoundBinaryOperationKind, BoundExpression, BoundStatement, BoundUnaryOperationKind,
     },
-    common::types::Object,
+    common::types::{Object, Type},
 };
 
 use super::environment::Environment;
@@ -131,9 +131,11 @@ impl Evaluator {
                 let left = self.evaluate_expression(&expression.left);
                 let right = self.evaluate_expression(&expression.right);
                 match expression.operator.operation_kind {
-                    BoundBinaryOperationKind::Addition => {
-                        Object::Number(left.as_number() + right.as_number())
-                    }
+                    BoundBinaryOperationKind::Addition => match left.get_type() {
+                        Type::Number => Object::Number(left.as_number() + right.as_number()),
+                        Type::String => Object::String(format!("{}{}", left, right)),
+                        _ => unreachable!("Invalid Operation/Operand."),
+                    },
                     BoundBinaryOperationKind::Subtraction => {
                         Object::Number(left.as_number() - right.as_number())
                     }

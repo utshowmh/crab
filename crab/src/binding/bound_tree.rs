@@ -149,6 +149,13 @@ impl BoundBinaryOperator {
                 Type::Number,
             ),
             BoundBinaryOperator::new(
+                TokenKind::Plus,
+                BoundBinaryOperationKind::Addition,
+                Type::String,
+                Type::String,
+                Type::String,
+            ),
+            BoundBinaryOperator::new(
                 TokenKind::Minus,
                 BoundBinaryOperationKind::Subtraction,
                 Type::Number,

@@ -42,7 +42,7 @@ pub enum Object {
 }
 
 impl Object {
-    pub(crate) fn get_type(&self) -> Type {
+    pub fn get_type(&self) -> Type {
         match self {
             Object::Unit => Type::Unit,
             Object::Number(_) => Type::Number,
@@ -62,6 +62,13 @@ impl Object {
         match self {
             Object::Boolean(b) => *b,
             o => panic!("Can not convert {o} to {}", Type::Boolean),
+        }
+    }
+
+    pub fn as_string(&self) -> String {
+        match self {
+            Object::String(s) => s.clone(),
+            o => panic!("Can not convert {o} to {}", Type::String),
         }
     }
 }
